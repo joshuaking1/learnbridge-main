@@ -7,6 +7,12 @@ import { cn } from "@/lib/utils"; // For combining class names
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/useAuthStore"; // To get user role
 import { useState, useEffect } from "react"; // For managing sidebar state
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Import icons from lucide-react
 import {
@@ -19,7 +25,9 @@ import {
     LogOut,        // Logout
     Bot,           // AI Assistant (Chat)
     Menu,          // Menu icon for mobile toggle
-    X              // Close icon for mobile toggle
+    X,             // Close icon for mobile toggle
+    ChevronLeft,   // Collapse sidebar icon
+    ChevronRight   // Expand sidebar icon
 } from "lucide-react";
 
 // Commented out unused icons
@@ -33,16 +41,31 @@ interface NavItem {
     roles?: ('teacher' | 'student' | 'admin')[]; // Optional roles that can see this link
 }
 
-export function Sidebar() {
+interface SidebarProps {
+    collapseEventName?: string; // Optional event name for sidebar collapse state changes
+}
+
+export function Sidebar({ collapseEventName }: SidebarProps) {
     const pathname = usePathname(); // Get current URL path
     const { user, clearAuth } = useAuthStore(); // Get user role and logout action
     const router = useRouter(); // For programmatic navigation on logout
     const [isOpen, setIsOpen] = useState(false); // State for mobile sidebar
+    const [isCollapsed, setIsCollapsed] = useState(false); // State for sidebar collapse
 
     // Close sidebar when route changes on mobile
     useEffect(() => {
         setIsOpen(false);
     }, [pathname]);
+
+    // Dispatch custom event when sidebar collapse state changes
+    useEffect(() => {
+        if (collapseEventName) {
+            const event = new CustomEvent(collapseEventName, {
+                detail: { isCollapsed }
+            });
+            window.dispatchEvent(event);
+        }
+    }, [isCollapsed, collapseEventName]);
 
     // Define navigation links based on roles
     const navItems: NavItem[] = [
@@ -81,7 +104,7 @@ export function Sidebar() {
             <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-4 left-4 z-50 md:hidden bg-brand-darkblue text-white hover:bg-white/10"
+                className="fixed top-4 left-4 z-50 md:hidden bg-brand-darkblue text-white hover:bg-brand-orange/80"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -97,39 +120,87 @@ export function Sidebar() {
 
             {/* Sidebar */}
             <aside className={cn(
-                "fixed left-0 top-0 z-40 h-screen bg-brand-darkblue border-r border-white/10 transition-transform duration-300 ease-in-out",
-                "w-64 transform",
+                "fixed left-0 top-0 z-40 h-screen bg-brand-darkblue border-r border-white/10 transition-all duration-300 ease-in-out",
+                isCollapsed ? "w-16" : "w-64", // Width based on collapsed state
+                "transform",
                 "md:translate-x-0", // Always visible on desktop
                 isOpen ? "translate-x-0" : "-translate-x-full" // Toggle on mobile
             )}>
-                <div className="flex h-full flex-col">
+                <div className="flex h-full flex-col relative">
+                    {/* Collapse Toggle Button (desktop only) */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -right-3 top-4 z-50 hidden md:flex bg-brand-darkblue text-white hover:bg-brand-orange/80 rounded-full border border-white/10 shadow-md"
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                    >
+                        {isCollapsed ?
+                            <ChevronRight className="h-4 w-4" /> :
+                            <ChevronLeft className="h-4 w-4" />}
+                    </Button>
+
                     {/* Logo/Brand */}
-                    <div className="p-4 border-b border-white/10">
-                        <Link href="/dashboard" className="flex items-center space-x-2">
-                            <span className="text-xl font-arvo font-bold text-white">
-                                LearnBridge<span className="text-brand-orange">Edu</span>
-                            </span>
+                    <div className={cn(
+                        "border-b border-white/10",
+                        isCollapsed ? "p-2 flex justify-center" : "p-4"
+                    )}>
+                        <Link href="/dashboard" className={cn(
+                            "flex items-center",
+                            isCollapsed ? "justify-center" : "space-x-2"
+                        )}>
+                            {isCollapsed ? (
+                                <span className="text-xl font-arvo font-bold text-white">L</span>
+                            ) : (
+                                <span className="text-xl font-arvo font-bold text-white">
+                                    LearnBridge<span className="text-brand-orange">Edu</span>
+                                </span>
+                            )}
                         </Link>
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 overflow-y-auto p-4">
+                    <nav className={cn(
+                        "flex-1 overflow-y-auto",
+                        isCollapsed ? "p-2" : "p-4"
+                    )}>
                         <ul className="space-y-2">
                             {filteredNavItems.map((item) => {
                                 const isActive = pathname === item.href;
                                 return (
                                     <li key={item.href}>
-                                        <Link
-                                            href={item.href}
-                                            className={cn(
-                                                buttonVariants({ variant: "ghost" }),
-                                                "w-full justify-start text-white hover:bg-white/10",
-                                                isActive && "bg-white/10"
-                                            )}
-                                        >
-                                            <item.icon className="mr-2 h-5 w-5" />
-                                            {item.label}
-                                        </Link>
+                                        {isCollapsed ? (
+                                            <TooltipProvider>
+                                                <Tooltip delayDuration={0}>
+                                                    <TooltipTrigger asChild>
+                                                        <Link
+                                                            href={item.href}
+                                                            className={cn(
+                                                                buttonVariants({ variant: "ghost", size: "icon" }),
+                                                                "w-full flex justify-center text-white hover:bg-brand-orange/80",
+                                                                isActive && "bg-brand-orange/80"
+                                                            )}
+                                                        >
+                                                            <item.icon className="h-5 w-5" />
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="right" className="bg-brand-darkblue text-white border-white/10">
+                                                        {item.label}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        ) : (
+                                            <Link
+                                                href={item.href}
+                                                className={cn(
+                                                    buttonVariants({ variant: "ghost" }),
+                                                    "w-full justify-start text-white hover:bg-brand-orange/80",
+                                                    isActive && "bg-brand-orange/80"
+                                                )}
+                                            >
+                                                <item.icon className="mr-2 h-5 w-5" />
+                                                {item.label}
+                                            </Link>
+                                        )}
                                     </li>
                                 );
                             })}
@@ -137,21 +208,46 @@ export function Sidebar() {
                     </nav>
 
                     {/* User Info & Logout */}
-                    <div className="border-t border-white/10 p-4">
-                        <div className="mb-4">
-                            <p className="text-sm font-arvo font-medium text-white">
-                                {user?.first_name} {user?.surname}
-                            </p>
-                            <p className="text-xs text-white/70 capitalize">{user?.role}</p>
-                        </div>
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-start text-white hover:bg-white/10"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="mr-2 h-5 w-5" />
-                            Logout
-                        </Button>
+                    <div className={cn(
+                        "border-t border-white/10",
+                        isCollapsed ? "p-2" : "p-4"
+                    )}>
+                        {!isCollapsed && (
+                            <div className="mb-4">
+                                <p className="text-sm font-arvo font-medium text-white">
+                                    {user?.first_name} {user?.surname}
+                                </p>
+                                <p className="text-xs text-white/70 capitalize">{user?.role}</p>
+                            </div>
+                        )}
+                        {isCollapsed ? (
+                            <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="w-full flex justify-center text-white hover:bg-brand-orange/80"
+                                            onClick={handleLogout}
+                                        >
+                                            <LogOut className="h-5 w-5" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="bg-brand-darkblue text-white border-white/10">
+                                        Logout
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ) : (
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start text-white hover:bg-brand-orange/80"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="mr-2 h-5 w-5" />
+                                Logout
+                            </Button>
+                        )}
                     </div>
                 </div>
             </aside>
