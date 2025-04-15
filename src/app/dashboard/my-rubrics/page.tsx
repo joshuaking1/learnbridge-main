@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Trash2, Eye } from "lucide-react";
@@ -30,25 +30,21 @@ interface RubricSummary {
 export default function MyRubricsPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
+    const { isAuthenticated, user, isLoadingAuth } = useAuth();
     const [hasMounted, setHasMounted] = useState(false);
     const [rubrics, setRubrics] = useState<RubricSummary[]>([]); // State for rubrics
     const [isLoadingRubrics, setIsLoadingRubrics] = useState(true); // Loading state
     const [errorLoading, setErrorLoading] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
-    // --- Mount and Auth Check ---
-    useEffect(() => { setHasMounted(true); }, []);
     useEffect(() => {
-        if (hasMounted && !isLoadingAuth && !isAuthenticated) {
-            toast({ title: "Authentication Required", variant: "destructive" });
-            router.push('/login');
-        }
-        if (hasMounted && !isLoadingAuth && isAuthenticated && user?.role !== 'teacher') {
-           toast({ title: "Access Denied: Teachers Only", variant: "destructive" });
-           router.push('/dashboard');
-        }
-    }, [hasMounted, isLoadingAuth, isAuthenticated, user, router, toast]);
+        setHasMounted(true);
+    }, []);
+
+    if (!hasMounted) return null;
+    if (!isAuthenticated || !user || user.role !== 'teacher') {
+        return null;
+    }
 
     // --- Fetch Saved Rubrics ---
     useEffect(() => {
