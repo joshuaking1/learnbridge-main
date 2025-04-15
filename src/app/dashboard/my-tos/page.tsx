@@ -2,25 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
-interface TableOfSpecification {
+interface ToS {
     id: string;
     title: string;
     created_at: string;
 }
 
-export default function MyTosPage() {
+export default function MyToSPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { isAuthenticated, user, token, isLoadingAuth } = useAuth();
+    const { isAuthenticated, user, token, isLoading: isLoadingAuth } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
-    const [tosList, setTosList] = useState<TableOfSpecification[]>([]);
-    const [isLoadingTos, setIsLoadingTos] = useState(false);
+    const [tosList, setTosList] = useState<ToS[]>([]);
+    const [isLoadingToS, setIsLoadingToS] = useState(false);
     const [errorLoading, setErrorLoading] = useState<string | null>(null);
 
     useEffect(() => {
@@ -67,7 +67,7 @@ export default function MyTosPage() {
                 </Button>
             </header>
 
-            {isLoadingTos ? (
+            {isLoadingToS ? (
                 <div className="flex justify-center p-8">
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>

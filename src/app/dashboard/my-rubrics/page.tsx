@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -17,7 +17,7 @@ interface Rubric {
 export default function MyRubricsPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { isAuthenticated, user, token, isLoadingAuth } = useAuth();
+    const { isAuthenticated, user, token, isLoading: isLoadingAuth } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
     const [rubrics, setRubrics] = useState<Rubric[]>([]);
     const [isLoadingRubrics, setIsLoadingRubrics] = useState(false);

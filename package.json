@@ -31,7 +31,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.487.0",
-    "next": "15.2.4",
+    "next": "^14.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.55.0",
@@ -57,3 +57,4 @@
     "typescript": "^5"
   }
 }
+
