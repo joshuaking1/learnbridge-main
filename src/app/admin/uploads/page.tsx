@@ -99,7 +99,7 @@ export default function AdminUploadPage() {
         try {
              setUploadProgress(50); // Simulate progress
 
-            const response = await fetch('https://content-service-e54f.onrender.com/api/content/upload/sbc', { //'http://localhost:3003/api/content/upload/sbc
+            const response = await fetch('https://content-service-e54f.onrender.com/api/content/upload/sbc', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Use token from store
@@ -287,3 +287,4 @@ export default function AdminUploadPage() {
         </div>
     );
 }
+

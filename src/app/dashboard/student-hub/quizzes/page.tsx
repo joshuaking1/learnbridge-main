@@ -58,7 +58,7 @@ export default function StudentQuizzesPage() {
                 setErrorLoading(null);
                 try {
                     // TODO: Add filter parameters to URL later
-                    const response = await fetch('http://localhost:3006/api/quizzes', { // Quiz Service URL
+                    const response = await fetch('https://learnbridgedu.onrender.com/api/quizzes', { // Quiz Service URL
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {

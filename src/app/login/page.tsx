@@ -51,7 +51,7 @@ export default function LoginPage() {
     console.log("Login Attempt:", values);
 
     try {
-         const response = await fetch('http://localhost:3002/api/auth/login', {
+         const response = await fetch('https://learnbridge-auth-service.onrender.com/api/auth/login', {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',

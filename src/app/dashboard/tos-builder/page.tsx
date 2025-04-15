@@ -113,7 +113,7 @@ export default function TosBuilderPage() {
             const fetchBooks = async () => {
                 setIsLoadingBooks(true);
                 try {
-                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', {
+                    const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) throw new Error('Failed to fetch book list');
@@ -176,7 +176,7 @@ export default function TosBuilderPage() {
         }
 
         try {
-            const response = await fetch('http://localhost:3004/api/ai/generate/tos', {
+            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/tos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -235,7 +235,7 @@ export default function TosBuilderPage() {
         console.log("Saving ToS:", payload.subject, payload.assessmentTitle);
 
         try {
-            const response = await fetch('http://localhost:3005/api/teacher-tools/tos', { // Use new ToS endpoint
+            const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos', { // Use new ToS endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),
