@@ -1,4 +1,3 @@
-// frontend/src/app/dashboard/my-rubrics/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";

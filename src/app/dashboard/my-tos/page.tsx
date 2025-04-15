@@ -1,4 +1,3 @@
-// frontend/src/app/dashboard/my-tos/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
