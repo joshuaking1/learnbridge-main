@@ -78,17 +78,17 @@ export function SchoolCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-white border border-gray-200 shadow-lg">
-        <Command className="bg-white rounded-lg">
+      <PopoverContent className="w-full p-0">
+        <Command>
           <CommandInput 
             placeholder={searchPlaceholder} 
             value={inputValue}
             onValueChange={setInputValue}
             onInput={handleInputChange}
-            className="h-9 bg-white text-black"
+            className="h-9"
           />
-          <CommandEmpty className="py-2 px-4 text-sm text-gray-500">{notFoundMessage}</CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-auto bg-white">
+          <CommandEmpty>{notFoundMessage}</CommandEmpty>
+          <CommandGroup className="max-h-60 overflow-auto">
             {schools.map((school) => (
               <CommandItem
                 key={school.value}
@@ -97,7 +97,6 @@ export function SchoolCombobox({
                   onChange(currentValue === value ? "" : currentValue)
                   setOpen(false)
                 }}
-                className="px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
               >
                 <Check
                   className={cn(

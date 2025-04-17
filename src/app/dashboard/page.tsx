@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
-import { AiChatInterface } from '@/components/ai/AiChatInterface';
+import { AiChatInterfaceWithThinking } from '@/components/ai/AiChatInterfaceWithThinking';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -44,6 +44,8 @@ export default function DashboardPage() {
 
     // --- State to prevent hydration mismatch ---
     const [hasMounted, setHasMounted] = useState(false);
+    const [greeting, setGreeting] = useState("Welcome");
+    const [userName, setUserName] = useState("User");
 
     // --- Get state and actions from the store ---
     // Only access auth state after component has mounted
@@ -55,9 +57,48 @@ export default function DashboardPage() {
         console.log("Component mounted, auth state:", {
             isLoading: isLoadingAuth,
             isAuthenticated,
-            hasUser: !!user
+            hasUser: !!user,
+            user: user
         });
+
+        // Set greeting based on time of day
+        const hour = new Date().getHours();
+        if (hour < 12) {
+            setGreeting('Good morning');
+        } else if (hour < 18) {
+            setGreeting('Good afternoon');
+        } else {
+            setGreeting('Good evening');
+        }
     }, [isAuthenticated, user, isLoadingAuth]);
+
+    // --- Debug effect for user data ---
+    useEffect(() => {
+        if (user) {
+            console.log("User data:", {
+                id: user.id,
+                email: user.email,
+                first_name: user.first_name,
+                surname: user.surname,
+                role: user.role,
+                fullUser: JSON.stringify(user)
+            });
+
+            // Set the user name if available
+            if (user.first_name) {
+                console.log("Setting user name to:", user.first_name);
+                setUserName(user.first_name);
+            } else {
+                console.log("User first_name not available");
+                // Try to set a hardcoded name for testing
+                setUserName("TestUser");
+            }
+        } else {
+            console.log("User object is null or undefined");
+            // Set a hardcoded name for testing
+            setUserName("TestUser");
+        }
+    }, [user]);
 
     // --- Effect to handle authentication ---
     useEffect(() => {
@@ -93,7 +134,7 @@ export default function DashboardPage() {
             <div className="container mx-auto">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
                     <h1 className="text-2xl sm:text-3xl font-arvo font-bold text-white">
-                        Welcome, {user?.first_name || 'User'}
+                        {greeting}, {user?.firstName || user?.first_name || 'User'}👋!
                     </h1>
                     <Button
                         onClick={handleLogout}
@@ -146,7 +187,7 @@ export default function DashboardPage() {
                         <Link href="/dashboard/tos-builder" className="block">
                             <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-6 rounded-lg border border-white/20 hover:bg-white/20 transition-all">
                                 <h2 className="text-lg sm:text-xl font-arvo font-bold text-white mb-2">TOS Builder</h2>
-                                <p className="text-white/80 text-sm sm:text-base">Generate terms of service for your educational content</p>
+                                <p className="text-white/80 text-sm sm:text-base">Generate a Table of Specification to align content with learning goals and balanced assessment coverage.</p>
                             </div>
                         </Link>
                     </div>
@@ -154,7 +195,7 @@ export default function DashboardPage() {
 
                 {/* AI Chat Interface */}
                 <div className="mt-6 sm:mt-8">
-                    <AiChatInterface />
+                    <AiChatInterfaceWithThinking />
                 </div>
 
                 {/* Role-specific content */}

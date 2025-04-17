@@ -76,7 +76,7 @@ export default function LessonPlannerPage() {
         console.log("Requesting Lesson Plan:", values);
         if (!token) { /* ... auth check ... */ return; }
         try {
-            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/lesson-plan', {
+            const response = await fetch('http://localhost:3004/api/ai/generate/lesson-plan', { //'http://localhost:3004/api/ai/generate/lesson-plan
                  method: 'POST',
                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                  body: JSON.stringify(values),

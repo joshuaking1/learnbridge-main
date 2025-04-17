@@ -6,7 +6,8 @@ import { persist, createJSONStorage } from 'zustand/middleware'; // For persisti
 interface User {
     id: number;
     email: string;
-    first_name: string;
+    first_name?: string; // Snake case version
+    firstName?: string; // Camel case version
     surname?: string; // Optional based on your needs/DB
     role: string;
     // Add other relevant fields from your user object

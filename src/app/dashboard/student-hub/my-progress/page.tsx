@@ -56,7 +56,7 @@ export default function MyProgressPage() {
                 setIsLoadingAttempts(true);
                 setErrorLoading(null);
                 try {
-                    const response = await fetch('https://learnbridgedu.onrender.com/api/quizzes/attempts/my', { // Updated from localhost to production URL
+                    const response = await fetch('http://localhost:3006/api/quizzes/attempts/my', { // Use new endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {

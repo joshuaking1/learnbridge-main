@@ -15,7 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AiChatInterface } from '@/components/ai/AiChatInterface'; // Import AI Chat Interface
+import { AiChatInterfaceWithThinking } from '@/components/ai/AiChatInterfaceWithThinking'; // Import AI Chat Interface with Thinking
 
 
 // Interface for content chunks
@@ -62,7 +62,7 @@ export default function StudentHubPage() {
             const fetchBooks = async () => {
                 setIsLoadingBooks(true);
                 try {
-                    const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', { headers: { 'Authorization': `Bearer ${token}` } });
                     if (!response.ok) throw new Error('Failed to fetch book list');
                     const data = await response.json();
                     const books = data.documents || [];
@@ -98,7 +98,7 @@ export default function StudentHubPage() {
 
                 console.log(`Fetching content for: ${selectedSubject} - ${selectedBook}`);
                 try {
-                    const response = await fetch(`https://learnbridge-ai-service.onrender.com/api/ai/sbc-content?${params.toString()}`, {
+                    const response = await fetch(`http://localhost:3004/api/ai/sbc-content?${params.toString()}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -316,7 +316,7 @@ export default function StudentHubPage() {
                     <CardDescription className="text-slate-400">Ask questions about the SBC, concepts, or get help with assignments.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <AiChatInterface /> {/* Add the chat component here */}
+                    <AiChatInterfaceWithThinking /> {/* Add the chat component with thinking here */}
                 </CardContent>
             </Card>
             {/* --- End AI Chat Section --- */}
