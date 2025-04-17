@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Trash2, Eye } from "lucide-react";
@@ -113,8 +113,8 @@ export default function MyRubricsPage() {
     };
 
     // --- Render Logic ---
-    if (!hasMounted || isLoadingAuth) { /* ... loading auth ... */ }
-    if (!isAuthenticated || !user || user.role !== 'teacher') { /* ... not authenticated / wrong role ... */ }
+    if (!hasMounted || isLoadingAuth) { return <div>Loading...</div>; }
+    if (!isAuthenticated || !user || user.role !== 'teacher') { return <div>Not authenticated or not a teacher</div>; }
 
     return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8">
@@ -131,9 +131,9 @@ export default function MyRubricsPage() {
              </header>
 
             {/* Loading State */}
-            {isLoadingRubrics && ( /* ... Loading UI ... */ )}
+            {isLoadingRubrics && (<div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" /></div>)}
             {/* Error State */}
-            {!isLoadingRubrics && errorLoading && ( /* ... Error Alert ... */ )}
+            {!isLoadingRubrics && errorLoading && (<Alert variant="destructive" className="mb-6"><AlertTitle>Error</AlertTitle><AlertDescription>{errorLoading}</AlertDescription></Alert>)}
             {/* No Rubrics State */}
              {!isLoadingRubrics && !errorLoading && rubrics.length === 0 && (
                  <Card className="text-center py-10 mt-6">
