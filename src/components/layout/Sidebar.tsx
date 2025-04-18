@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils"; // For combining class names
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/useAuthStore"; // To get user role
 import { useState, useEffect } from "react"; // For managing sidebar state
 import { ChevronLeft, ChevronRight } from "lucide-react"; // For collapse/expand icons
@@ -20,11 +21,14 @@ import {
     LogOut,        // Logout
     Bot,           // AI Assistant (Chat)
     Menu,          // Menu icon for mobile toggle
-    X              // Close icon for mobile toggle
+    X,             // Close icon for mobile toggle
+    User,          // Profile icon
+    Calendar,      // Calendar icon for Daily Quizzes
+    GraduationCap  // Learning Hub icon
 } from "lucide-react";
 
-// Commented out unused icons
-// import { GraduationCap, Users, UploadCloud } from "lucide-react";
+// Other icons that might be used later
+// import { Users, UploadCloud } from "lucide-react";
 
 // Define navigation items structure
 interface NavItem {
@@ -68,14 +72,18 @@ export function Sidebar({ collapseEventName }: SidebarProps) {
         { href: "/dashboard/rubric-generator", label: "Rubric Generator", icon: Scaling, roles: ['teacher', 'admin'] },
         { href: "/dashboard/my-lessons", label: "My Lesson Plans", icon: BookOpenCheck, roles: ['teacher', 'admin'] },
         { href: "/dashboard/my-assessments", label: "My Assessments", icon: BookOpenCheck, roles: ['teacher', 'admin'] }, // Add My Assessments link
-        // --- Student Tools (Placeholders) ---
-        // { href: "/dashboard/student-hub", label: "Learning Hub", icon: GraduationCap, roles: ['student'] },
+        // --- Student Tools ---
+        { href: "/dashboard/student-hub", label: "Learning Hub", icon: GraduationCap, roles: ['student'] },
+        { href: "/dashboard/student-hub/daily-quizzes", label: "Daily Quizzes", icon: Calendar, roles: ['student'] },
+        { href: "/dashboard/student-hub/quizzes", label: "All Quizzes", icon: BookOpenCheck, roles: ['student'] },
+        // --- Admin Tools ---
+        { href: "/dashboard/admin/daily-quizzes", label: "Manage Daily Quizzes", icon: Calendar, roles: ['admin'] },
         // --- Community (Placeholder) ---
         // { href: "/dashboard/plc", label: "PLC", icon: Users, roles: ['teacher', 'admin'] },
-        // --- Admin Tools (Placeholder) ---
-        // { href: "/dashboard/admin-uploads", label: "Admin Uploads", icon: UploadCloud, roles: ['admin'] },
         // --- AI Assistant ---
         { href: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot, roles: ['teacher', 'student', 'admin'] },
+        // --- Profile ---
+        { href: "/dashboard/profile", label: "Profile", icon: User, roles: ['teacher', 'student', 'admin'] },
     ];
 
     // Filter nav items based on user role
@@ -174,20 +182,23 @@ export function Sidebar({ collapseEventName }: SidebarProps) {
 
                     {/* User Info & Logout */}
                     <div className="border-t border-white/10 p-4">
-                        {isCollapsed ? (
-                            <div className="mb-4 text-center">
-                                <p className="text-sm font-arvo font-medium text-white truncate">
-                                    {(user?.firstName || user?.first_name || 'User').charAt(0)}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="mb-4">
-                                <p className="text-sm font-arvo font-medium text-white">
-                                    {user?.firstName || user?.first_name || 'User'} {user?.surname || ''}
-                                </p>
-                                <p className="text-xs text-white/70 capitalize">{user?.role}</p>
-                            </div>
-                        )}
+                        <div className={cn("mb-4 flex", isCollapsed ? "justify-center" : "items-center")}>
+                            <Avatar className={cn("border-2 border-white/20", isCollapsed ? "h-8 w-8" : "h-10 w-10 mr-3")}>
+                                <AvatarImage src={user?.profile_image_url} alt={user?.first_name || 'User'} />
+                                <AvatarFallback className="bg-brand-orange text-white">
+                                    {(user?.firstName || user?.first_name || 'U').charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
+
+                            {!isCollapsed && (
+                                <div>
+                                    <p className="text-sm font-arvo font-medium text-white">
+                                        {user?.firstName || user?.first_name || 'User'} {user?.surname || ''}
+                                    </p>
+                                    <p className="text-xs text-white/70 capitalize">{user?.role}</p>
+                                </div>
+                            )}
+                        </div>
                         <Button
                             variant="ghost"
                             className={cn(

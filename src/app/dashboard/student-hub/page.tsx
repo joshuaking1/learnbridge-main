@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, BookOpen, History } from "lucide-react";
+import { Loader2, BookOpen, History, Calendar } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -225,18 +225,21 @@ export default function StudentHubPage() {
 
             {/* Navigation buttons for quizzes and progress */}
             <div className="my-6 flex justify-center flex-wrap gap-4">
+                <Link href="/dashboard/student-hub/daily-quizzes">
+                    <Button size="lg" className="bg-brand-orange text-white hover:bg-brand-orange/90">
+                        <Calendar className="mr-2 h-5 w-5" /> Daily Quizzes
+                    </Button>
+                </Link>
                 <Link href="/dashboard/student-hub/quizzes">
                     <Button size="lg" className="bg-purple-600 text-white hover:bg-purple-700">
                         <BookOpen className="mr-2 h-5 w-5" /> Browse Quizzes
                     </Button>
                 </Link>
-                {/* --- ADD LINK --- */}
                 <Link href="/dashboard/student-hub/my-progress">
                     <Button size="lg" variant="secondary" className="bg-brand-midblue hover:bg-brand-midblue/90 text-white">
                         <History className="mr-2 h-5 w-5" /> My Progress
                     </Button>
                 </Link>
-                {/* --- END ADD LINK --- */}
             </div>
 
             {/* Content Display Area */}

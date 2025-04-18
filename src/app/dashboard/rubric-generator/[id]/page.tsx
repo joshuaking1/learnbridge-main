@@ -61,7 +61,7 @@ export default function ViewTosPage() {
             if (hasMounted && isAuthenticated && token && tosId && typeof tosId === 'string') {
                 setIsLoadingTos(true); setErrorLoading(null);
                 try {
-                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`, {
+                    const response = await fetch(`http://localhost:3005/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (response.status === 404) throw new Error('ToS not found or permission denied.');

@@ -151,7 +151,7 @@ Please let me know if you need any clarification or have additional questions!`;
         {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex justify-start">
             <div className="max-w-[75%] rounded-lg px-4 py-2 bg-slate-600 text-slate-400 italic">
-            LearnBridgedu is thinking... <Loader2 className="inline-block h-4 w-4 animate-spin" />
+              Assistant is thinking... <Loader2 className="inline-block h-4 w-4 animate-spin" />
             </div>
           </div>
         )}

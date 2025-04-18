@@ -59,7 +59,7 @@ export default function MyRubricsPage() {
                 setErrorLoading(null);
                 try {
                     // Use the correct endpoint for fetching rubrics
-                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics', {
+                    const response = await fetch('http://localhost:3005/api/teacher-tools/rubrics', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -92,7 +92,7 @@ export default function MyRubricsPage() {
         setDeletingId(rubricId);
         try {
             // Use the correct endpoint for deleting rubrics
-            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics/${rubricId}`, {
+            const response = await fetch(`http://localhost:3005/api/teacher-tools/rubrics/${rubricId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -118,7 +118,7 @@ export default function MyRubricsPage() {
 
     return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-             <header className="mb-6 flex justify-between items-center">
+            <header className="mb-6 flex justify-between items-center">
                  <div>
                      <h1 className="text-3xl font-bold text-brand-darkblue">My Saved Rubrics</h1>
                      <nav className="text-sm text-gray-500">

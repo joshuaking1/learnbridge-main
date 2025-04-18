@@ -10,6 +10,11 @@ interface User {
     firstName?: string; // Camel case version
     surname?: string; // Optional based on your needs/DB
     role: string;
+    school?: string;
+    location?: string;
+    phone?: string;
+    gender?: string;
+    profile_image_url?: string;
     // Add other relevant fields from your user object
 }
 
@@ -20,6 +25,7 @@ interface AuthState {
     isAuthenticated: boolean;
     isLoading: boolean; // To track initial loading from storage
     setUserAndToken: (user: User, token: string) => void;
+    setUser: (user: User) => void; // Update user data only
     clearAuth: () => void;
     setLoading: (loading: boolean) => void;
     refreshToken: () => Promise<boolean>; // Add token refresh function
@@ -40,6 +46,12 @@ export const useAuthStore = create<AuthState>()(
             setUserAndToken: (user, token) => {
                 set({ user, token, isAuthenticated: true, isLoading: false });
                 console.log('Auth state updated:', { user, token: token ? '***' : null }); // Log state update
+            },
+
+            // Action to update user data only (e.g., after profile update)
+            setUser: (user) => {
+                set({ user });
+                console.log('User data updated:', { user }); // Log state update
             },
 
             // Action to clear user and token (e.g., after logout or auth error)

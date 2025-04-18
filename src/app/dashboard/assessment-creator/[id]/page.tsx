@@ -111,7 +111,7 @@ export default function ViewAssessmentPage() {
         const payload = { title: editedTitle, assessmentContent: editedContent }; // Fields allowed to update
 
         try {
-            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments/${assessmentId}`, {
+            const response = await fetch(`http://localhost:3005/api/teacher-tools/assessments/${assessmentId}` , { // http://localhost:3005/api/teacher-tools/assessments/${assessmentId}
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),

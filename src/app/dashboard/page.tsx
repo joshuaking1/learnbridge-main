@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { AiChatInterfaceWithThinking } from '@/components/ai/AiChatInterfaceWithThinking';
+// ProfileSection moved to its own page
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -193,6 +194,16 @@ export default function DashboardPage() {
                     </div>
                 )}
 
+                {/* Profile Link */}
+                <div className="mt-6 sm:mt-8">
+                    <Link href="/dashboard/profile" className="block">
+                        <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-6 rounded-lg border border-white/20 hover:bg-white/20 transition-all">
+                            <h2 className="text-lg sm:text-xl font-arvo font-bold text-white mb-2">Profile Settings</h2>
+                            <p className="text-white/80 text-sm sm:text-base">View and manage your profile information</p>
+                        </div>
+                    </Link>
+                </div>
+
                 {/* AI Chat Interface */}
                 <div className="mt-6 sm:mt-8">
                     <AiChatInterfaceWithThinking />
@@ -249,6 +260,7 @@ export default function DashboardPage() {
                             <h3 className="text-lg sm:text-xl font-semibold text-brand-orange">Admin Tools</h3>
                             <div className="flex flex-wrap gap-2">
                                 <Link href="/admin/uploads"><Button variant="secondary" className="w-full sm:w-auto">Upload Documents</Button></Link>
+                                <Link href="/dashboard/admin/daily-quizzes"><Button variant="secondary" className="w-full sm:w-auto">Manage Daily Quizzes</Button></Link>
                                 {/* Add links to user management, etc. later */}
                             </div>
                         </div>

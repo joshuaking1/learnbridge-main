@@ -9,11 +9,7 @@ const nextConfig = {
   output: 'standalone',
   distDir: '.next',
   poweredByHeader: false,
-  reactStrictMode: false,
-  experimental: {
-    // This is important for handling template variables correctly
-    serverComponentsExternalPackages: []
-  }
+  reactStrictMode: false
 };
 
 module.exports = nextConfig;

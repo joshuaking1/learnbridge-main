@@ -113,7 +113,7 @@ export default function TosBuilderPage() {
             const fetchBooks = async () => {
                 setIsLoadingBooks(true);
                 try {
-                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', {
+                    const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) throw new Error('Failed to fetch book list');
@@ -176,7 +176,7 @@ export default function TosBuilderPage() {
         }
 
         try {
-            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/tos', {
+            const response = await fetch('http://localhost:3004/api/ai/generate/tos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -153,7 +153,7 @@ export default function TakeQuizPage() {
         console.log("Submitting answers:", selectedAnswers);
 
         try {
-            const response = await fetch(`https://learnbridgedu.onrender.com/api/quizzes/attempts/${quizId}`, {
+            const response = await fetch(`http://localhost:3006/api/quizzes/attempts/${quizId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -92,7 +92,7 @@ export default function MyTosPage() {
         setDeletingId(tosId);
         try {
             // Use the correct endpoint for deleting ToS
-            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`, {
+            const response = await fetch(`http://localhost:3005/api/teacher-tools/tos/${tosId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -118,7 +118,7 @@ export default function MyTosPage() {
 
     return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-             <header className="mb-6 flex justify-between items-center">
+            <header className="mb-6 flex justify-between items-center">
                  <div>
                      <h1 className="text-3xl font-bold text-brand-darkblue">My Saved Tables of Specification</h1>
                      <nav className="text-sm text-gray-500">

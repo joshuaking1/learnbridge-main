@@ -83,7 +83,7 @@ export default function ViewTosPage() {
         setIsSavingEdit(true);
         const payload = { title: editedTitle, tosContent: editedContent }; // Only update title and content
         try {
-            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`, {
+            const response = await fetch(`http://localhost:3005/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),
