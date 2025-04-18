@@ -50,7 +50,12 @@ const formSchema = z.object({
   firstName: z.string().min(2, { message: "First name must be at least 2 characters." }),
   surname: z.string().min(2, { message: "Surname must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
-  phone: z.string().optional(), // Optional field
+  phone: z.string()
+    .min(10, { message: "Phone number must be at least 10 digits." })
+    .max(15, { message: "Phone number must not exceed 15 digits." })
+    .regex(/^\+?[0-9\s]+$/, { message: "Please enter a valid phone number." })
+    .optional()
+    .or(z.literal('')), // Optional field with validation
   school: z.string().optional(), // Optional field
   location: z.string().optional(), // Optional field
   position: z.enum(["Teacher", "Student",  "Other"], { required_error: "Position is required."}), // Added required_error
@@ -170,7 +175,7 @@ export default function RegisterPage() {
                             placeholder="e.g., Joshua"
                             {...field}
                             disabled={isLoading}
-                            className="bg-white/90 text-black placeholder:text-gray-500 h-11"
+                            className="bg-white text-black placeholder:text-gray-500 h-11"
                           />
                         </FormControl>
                         <FormMessage className="text-red-400 text-xs" />
@@ -190,7 +195,7 @@ export default function RegisterPage() {
                             placeholder="e.g., Segu"
                             {...field}
                             disabled={isLoading}
-                            className="bg-white/90 text-black placeholder:text-gray-500 h-11"
+                            className="bg-white text-black placeholder:text-gray-500 h-11"
                           />
                         </FormControl>
                         <FormMessage className="text-red-400 text-xs" />
@@ -226,14 +231,14 @@ export default function RegisterPage() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="mb-1.5 text-sm font-medium text-gray-100">Phone Number</div>
+                      <div className="mb-1.5 text-sm font-medium text-gray-100">Phone Number <span className="text-xs text-gray-300">(e.g., +233599294673)</span></div>
                       <FormControl>
                         <Input
                           type="tel"
-                          placeholder="+233 599 294 673"
+                          placeholder="+233599294673"
                           {...field}
                           disabled={isLoading}
-                          className="bg-white/90 text-black placeholder:text-gray-500 h-11"
+                          className="bg-white text-black placeholder:text-gray-500 h-11"
                         />
                       </FormControl>
                       <FormMessage className="text-red-400 text-xs" />
