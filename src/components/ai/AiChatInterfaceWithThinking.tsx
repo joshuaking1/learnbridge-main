@@ -166,7 +166,7 @@ export function AiChatInterfaceWithThinking() {
                 {isLoading && messages[messages.length - 1]?.role === 'user' && (
                     <div className="flex justify-start">
                         <div className="max-w-[75%] rounded-lg px-4 py-2 bg-slate-600 text-slate-400 italic">
-                            Assistant is thinking... <Loader2 className="inline-block h-4 w-4 animate-spin" />
+                            LearnBridgedu is thinking... <Loader2 className="inline-block h-4 w-4 animate-spin" />
                         </div>
                     </div>
                 )}
