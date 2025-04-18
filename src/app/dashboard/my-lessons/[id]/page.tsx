@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation"; // Import useParams
 import Link from "next/link";
 import { useAuthStore } from '@/stores/useAuthStore';
-import { toast, useToast } from "@/hooks/use-toast"; 
+import { toast, useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Pencil } from "lucide-react";
@@ -68,7 +68,7 @@ export default function ViewLessonPlanPage() {
                 setErrorLoading(null);
                 console.log(`Fetching lesson plan with ID: ${planId}`);
                 try {
-                    const response = await fetch(`http://localhost:3005/api/teacher-tools/lessons/${planId}`, {
+                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons/${planId}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
 
@@ -104,7 +104,7 @@ export default function ViewLessonPlanPage() {
                  setIsLoadingPlan(false);
             }
         };
-        
+
         // --- Conditional Logic Moved Inside useEffect Callback ---
         if (hasMounted && isAuthenticated && token && planId && typeof planId === 'string') {
             // Only call fetchPlan if all conditions are met

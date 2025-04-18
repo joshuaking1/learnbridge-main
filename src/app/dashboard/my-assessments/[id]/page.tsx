@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from "@/hooks/use-toast"; 
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"; // For editing title
@@ -70,7 +70,7 @@ export default function ViewAssessmentPage() {
                 setErrorLoading(null);
                 console.log(`Fetching assessment with ID: ${assessmentId}`);
                 try {
-                    const response = await fetch(`http://localhost:3005/api/teacher-tools/assessments/${assessmentId}`, { // Use assessment endpoint
+                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments/${assessmentId}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
 
@@ -137,7 +137,7 @@ export default function ViewAssessmentPage() {
     if (!hasMounted || isLoadingAuth || isLoadingAssessment) { /* ... loading state ... */ }
     if (!isAuthenticated || !user) { /* ... not authenticated state ... */ }
     if (errorLoading) { /* ... error loading state ... */ }
-    if (!assessment) { 
+    if (!assessment) {
         return (
             <div className="min-h-screen bg-slate-100 p-4 md:p-8 flex items-center justify-center">
                 <div className="text-center">

@@ -96,7 +96,7 @@ export default function RubricGeneratorPage() {
         if (!token) { /* ... auth token check ... */ return; }
 
         try {
-            const response = await fetch('http://localhost:3004/api/ai/generate/rubric', { // AI Service URL
+            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/rubric', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ export default function RubricGeneratorPage() {
         console.log("Saving Rubric:", payload.assessmentTitle);
 
         try {
-            const response = await fetch('http://localhost:3005/api/teacher-tools/rubrics', { // Use new Rubric endpoint
+            const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),

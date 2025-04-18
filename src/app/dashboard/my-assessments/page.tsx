@@ -60,7 +60,7 @@ export default function MyAssessmentsPage() {
                 setErrorLoading(null);
                 try {
                     // Use the correct endpoint for fetching assessments
-                    const response = await fetch('http://localhost:3005/api/teacher-tools/assessments', {
+                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -93,7 +93,7 @@ export default function MyAssessmentsPage() {
         setDeletingId(assessmentId);
         try {
             // Use the correct endpoint for deleting assessments
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/assessments/${assessmentId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments/${assessmentId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -114,15 +114,15 @@ export default function MyAssessmentsPage() {
     };
 
     // --- Render Logic ---
-    if (!hasMounted || isLoadingAuth) { 
+    if (!hasMounted || isLoadingAuth) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" />
             </div>
         );
     }
-    
-    if (!isAuthenticated || !user || user.role !== 'teacher') { 
+
+    if (!isAuthenticated || !user || user.role !== 'teacher') {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <Alert variant="destructive" className="max-w-md">
@@ -155,7 +155,7 @@ export default function MyAssessmentsPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" />
                 </div>
             )}
-            
+
             {/* Error State */}
             {!isLoadingAssessments && errorLoading && (
                 <Alert variant="destructive" className="mb-6">
@@ -163,7 +163,7 @@ export default function MyAssessmentsPage() {
                     <AlertDescription>{errorLoading}</AlertDescription>
                 </Alert>
             )}
-            
+
             {/* No Assessments State */}
              {!isLoadingAssessments && !errorLoading && assessments.length === 0 && (
                  <Card className="text-center py-10 mt-6">

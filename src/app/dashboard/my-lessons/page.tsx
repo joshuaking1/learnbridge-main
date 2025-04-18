@@ -58,7 +58,7 @@ export default function MyLessonPlansPage() {
                 setIsLoadingPlans(true);
                 setErrorLoading(null);
                 try {
-                    const response = await fetch('http://localhost:3005/api/teacher-tools/lessons', {
+                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -98,7 +98,7 @@ export default function MyLessonPlansPage() {
         console.log(`Set deletingId to: ${planId}`);
         try {
             console.log(`Sending DELETE request for ID: ${planId} with token: ${token ? 'Exists' : 'MISSING!'}`);
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/lessons/${planId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons/${planId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });

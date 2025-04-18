@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Auth Service URL - would be better in an environment variable
-const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3002';
+const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'https://learnbridge-auth-service.onrender.com';
 
 export async function POST(request: NextRequest) {
   try {
     // Get the authorization header from the incoming request
     const authHeader = request.headers.get('Authorization');
-    
+
     if (!authHeader) {
       return NextResponse.json(
         { error: 'Authentication required' },

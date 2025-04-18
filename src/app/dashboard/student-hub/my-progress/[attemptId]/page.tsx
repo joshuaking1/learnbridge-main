@@ -77,7 +77,7 @@ export default function QuizReviewPage() {
                 setIsLoadingReview(true);
                 setErrorLoading(null);
                 try {
-                    const response = await fetch(`http://localhost:3006/api/quizzes/attempts/${attemptId}/review`, { // Use new review endpoint
+                    const response = await fetch(`https://learnbridgedu.onrender.com/api/quizzes/attempts/${attemptId}/review`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
