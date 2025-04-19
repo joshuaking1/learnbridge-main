@@ -37,7 +37,7 @@ export function DailyQuizzes() {
             setError(null);
             
             try {
-                const response = await fetch('http://localhost:3006/api/daily-quizzes', {
+                const response = await fetch('https://learnbridgedu.onrender.com/api/daily-quizzes', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
