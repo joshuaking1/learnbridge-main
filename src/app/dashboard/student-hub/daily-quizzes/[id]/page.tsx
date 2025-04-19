@@ -54,7 +54,7 @@ export default function DailyQuizPage() {
 
             try {
                 // Fetch quiz metadata
-                const metadataResponse = await fetch(`http://localhost:3006/api/daily-quizzes/${quizId}`, {
+                const metadataResponse = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -79,7 +79,7 @@ export default function DailyQuizPage() {
                 setQuiz(metadataData);
 
                 // Fetch quiz questions
-                const questionsResponse = await fetch(`http://localhost:3006/api/daily-quizzes/${quizId}/questions`, {
+                const questionsResponse = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}/questions`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

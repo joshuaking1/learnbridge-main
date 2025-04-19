@@ -36,7 +36,7 @@ export default function AdminDailyQuizzesPage() {
         setGenerationResults(null);
 
         try {
-            const response = await fetch('http://localhost:3006/api/daily-quizzes/generate', {
+            const response = await fetch('https://learnbridgedu.onrender.com/api/daily-quizzes/generate', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -50,7 +50,7 @@ export default function QuizResultsPage() {
             setError(null);
             
             try {
-                const response = await fetch(`http://localhost:3006/api/daily-quizzes/${quizId}/results`, {
+                const response = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}/results`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
