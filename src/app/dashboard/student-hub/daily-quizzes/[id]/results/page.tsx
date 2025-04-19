@@ -37,25 +37,30 @@ export default function QuizResultsPage() {
     const { token } = useAuthStore();
     const { toast } = useToast();
     const router = useRouter();
-    
+
     const [results, setResults] = useState<QuizResult | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     useEffect(() => {
         const fetchResults = async () => {
             if (!token || !quizId) return;
-            
+
             setIsLoading(true);
             setError(null);
-            
+
             try {
-                const response = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}/results`, {
+                // Use relative URL in production, which will be handled by Vercel rewrites
+                const apiBaseUrl = process.env.NODE_ENV === 'production'
+                    ? '/api/daily-quizzes'
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes';
+
+                const response = await fetch(`${apiBaseUrl}/${quizId}/results`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('No attempt found for this quiz');
@@ -63,7 +68,7 @@ export default function QuizResultsPage() {
                         throw new Error('Failed to fetch quiz results');
                     }
                 }
-                
+
                 const data = await response.json();
                 setResults(data);
             } catch (error) {
@@ -78,19 +83,19 @@ export default function QuizResultsPage() {
                 setIsLoading(false);
             }
         };
-        
+
         fetchResults();
     }, [token, quizId, toast]);
-    
+
     const handleGoBack = () => {
         router.push('/dashboard/student-hub/daily-quizzes');
     };
-    
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleString();
     };
-    
+
     if (isLoading) {
         return (
             <DashboardShell>
@@ -101,19 +106,19 @@ export default function QuizResultsPage() {
             </DashboardShell>
         );
     }
-    
+
     if (error) {
         return (
             <DashboardShell>
-                <Button 
-                    variant="ghost" 
+                <Button
+                    variant="ghost"
                     className="mb-4"
                     onClick={handleGoBack}
                 >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Daily Quizzes
                 </Button>
-                
+
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
@@ -122,19 +127,19 @@ export default function QuizResultsPage() {
             </DashboardShell>
         );
     }
-    
+
     if (!results) {
         return (
             <DashboardShell>
-                <Button 
-                    variant="ghost" 
+                <Button
+                    variant="ghost"
                     className="mb-4"
                     onClick={handleGoBack}
                 >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Daily Quizzes
                 </Button>
-                
+
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Results Found</AlertTitle>
@@ -143,24 +148,24 @@ export default function QuizResultsPage() {
             </DashboardShell>
         );
     }
-    
+
     return (
         <DashboardShell>
-            <Button 
-                variant="ghost" 
+            <Button
+                variant="ghost"
                 className="mb-4"
                 onClick={handleGoBack}
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Daily Quizzes
             </Button>
-            
+
             <DashboardHeader
                 heading="Quiz Results"
                 description="Review your answers and see your score"
                 icon={Calendar}
             />
-            
+
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle>Your Score</CardTitle>
@@ -178,9 +183,9 @@ export default function QuizResultsPage() {
                                 {results.percentage}%
                             </span>
                         </div>
-                        
+
                         <Progress value={results.percentage} className="h-2" />
-                        
+
                         <div className="pt-2 text-sm text-gray-500">
                             {results.percentage >= 80 ? (
                                 <div className="flex items-center text-green-600">
@@ -202,13 +207,13 @@ export default function QuizResultsPage() {
                     </div>
                 </CardContent>
             </Card>
-            
+
             <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Question Review</h3>
-                
+
                 {results.questions.map((question, index) => (
-                    <Card 
-                        key={question.id} 
+                    <Card
+                        key={question.id}
                         className={`border-l-4 ${question.isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}
                     >
                         <CardHeader className="pb-2">
@@ -235,11 +240,11 @@ export default function QuizResultsPage() {
                                 {question.type === 'multiple_choice' && question.options && (
                                     <div className="space-y-2">
                                         {question.options.map((option, optionIndex) => (
-                                            <div 
-                                                key={optionIndex} 
+                                            <div
+                                                key={optionIndex}
                                                 className={`p-2 rounded-md ${
-                                                    option === question.correctAnswer 
-                                                        ? 'bg-green-100 border border-green-200' 
+                                                    option === question.correctAnswer
+                                                        ? 'bg-green-100 border border-green-200'
                                                         : option === question.userAnswer && !question.isCorrect
                                                             ? 'bg-red-100 border border-red-200'
                                                             : 'bg-gray-50 border border-gray-200'
@@ -260,9 +265,9 @@ export default function QuizResultsPage() {
                                         ))}
                                     </div>
                                 )}
-                                
+
                                 <Separator />
-                                
+
                                 <div>
                                     <h4 className="font-medium mb-1">Explanation:</h4>
                                     <p className="text-gray-700">{question.explanation}</p>
