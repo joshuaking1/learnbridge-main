@@ -70,7 +70,12 @@ export default function ViewRubricPage() {
                 setIsLoadingRubric(true);
                 setErrorLoading(null);
                 try {
-                    const response = await fetch(`http://localhost:3005/api/teacher-tools/rubrics/${rubricId}`, {
+                    // Use relative URL in production, which will be handled by Vercel rewrites
+                    const apiBaseUrl = process.env.NODE_ENV === 'production'
+                        ? '/api/teacher-tools'
+                        : 'https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools';
+
+                    const response = await fetch(`${apiBaseUrl}/rubrics/${rubricId}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (response.status === 404) throw new Error('Rubric not found or permission denied.');

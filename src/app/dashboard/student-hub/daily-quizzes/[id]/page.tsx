@@ -54,7 +54,12 @@ export default function DailyQuizPage() {
 
             try {
                 // Fetch quiz metadata
-                const metadataResponse = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}`, {
+                // Use relative URL in production, which will be handled by Vercel rewrites
+                const apiBaseUrl = process.env.NODE_ENV === 'production'
+                    ? '/api/daily-quizzes'
+                    : 'http://localhost:3006/api/daily-quizzes';
+
+                const metadataResponse = await fetch(`${apiBaseUrl}/${quizId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -79,7 +84,7 @@ export default function DailyQuizPage() {
                 setQuiz(metadataData);
 
                 // Fetch quiz questions
-                const questionsResponse = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}/questions`, {
+                const questionsResponse = await fetch(`${apiBaseUrl}/${quizId}/questions`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -148,7 +153,12 @@ export default function DailyQuizPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch(`https://learnbridgedu.onrender.com/api/daily-quizzes/${quizId}/attempt`, {
+            // Use relative URL in production, which will be handled by Vercel rewrites
+            const apiBaseUrl = process.env.NODE_ENV === 'production'
+                ? '/api/daily-quizzes'
+                : 'http://localhost:3006/api/daily-quizzes';
+
+            const response = await fetch(`${apiBaseUrl}/${quizId}/attempt`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,6 +172,9 @@ export default function DailyQuizPage() {
                     // Quiz already attempted
                     router.push(`/dashboard/student-hub/daily-quizzes/${quizId}/results`);
                     return;
+                } else if (response.status === 429) {
+                    // Usage limit reached
+                    throw new Error('Daily usage limit reached. Please try again tomorrow.');
                 } else {
                     throw new Error('Failed to submit quiz');
                 }

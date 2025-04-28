@@ -77,7 +77,12 @@ export default function QuizReviewPage() {
                 setIsLoadingReview(true);
                 setErrorLoading(null);
                 try {
-                    const response = await fetch(`https://learnbridgedu.onrender.com/api/quizzes/attempts/${attemptId}/review`, { // Use new review endpoint
+                    // Use relative URL in production, which will be handled by Vercel rewrites
+                    const apiBaseUrl = process.env.NODE_ENV === 'production'
+                        ? '/api/quizzes'
+                        : 'https://learnbridgedu.onrender.com/api/quizzes';
+
+                    const response = await fetch(`${apiBaseUrl}/attempts/${attemptId}/review`, { // Use new review endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {

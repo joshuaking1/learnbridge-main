@@ -58,15 +58,15 @@ export default function LoginPage() {
            },
            body: JSON.stringify(values),
          });
-
+         
          const data = await response.json();
 
          if (!response.ok) {
            console.error("Login failed:", data);
-           toast({
-             title: "Login Failed",
-             description: data.error || "Invalid credentials. Please try again.",
-             variant: "destructive"
+           toast({ 
+             title: "Login Failed", 
+             description: data.error || "Invalid credentials. Please try again.", 
+             variant: "destructive" 
            });
          } else {
              console.log("Login successful:", data);
@@ -87,10 +87,10 @@ export default function LoginPage() {
          }
     } catch (error) {
       console.error("Network or unexpected error:", error);
-      toast({
-        title: "Error",
-        description: "Could not connect to the server. Please check your connection.",
-        variant: "destructive"
+      toast({ 
+        title: "Error", 
+        description: "Could not connect to the server. Please check your connection.", 
+        variant: "destructive" 
       });
     } finally {
       setIsLoading(false);
@@ -117,9 +117,9 @@ export default function LoginPage() {
                     <FormItem>
                       <div className="mb-1.5 text-sm font-medium text-gray-700">Email</div>
                       <FormControl>
-                        <Input
-                          placeholder="name@example.com"
-                          {...field}
+                        <Input 
+                          placeholder="name@example.com" 
+                          {...field} 
                           className="bg-white border-gray-300 focus:border-brand-orange focus:ring-brand-orange/20 h-10 sm:h-11 text-base"
                         />
                       </FormControl>
@@ -134,9 +134,9 @@ export default function LoginPage() {
                     <FormItem>
                       <div className="mb-1.5 text-sm font-medium text-gray-700">Password</div>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Enter your password"
+                        <Input 
+                          type="password" 
+                          placeholder="Enter your password" 
                           {...field}
                           className="bg-white border-gray-300 focus:border-brand-orange focus:ring-brand-orange/20 h-10 sm:h-11 text-base"
                         />
@@ -145,9 +145,9 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-                <Button
-                  type="submit"
-                  className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-medium h-10 sm:h-11 text-base mt-2"
+                <Button 
+                  type="submit" 
+                  className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-medium h-10 sm:h-11 text-base mt-2" 
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign in"}

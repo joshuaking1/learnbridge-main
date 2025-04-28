@@ -58,7 +58,12 @@ export default function StudentQuizzesPage() {
                 setErrorLoading(null);
                 try {
                     // TODO: Add filter parameters to URL later
-                    const response = await fetch('https://learnbridgedu.onrender.com/api/quizzes', {
+                    // Use relative URL in production, which will be handled by Vercel rewrites
+                    const apiBaseUrl = process.env.NODE_ENV === 'production'
+                        ? '/api/quizzes'
+                        : 'https://learnbridgedu.onrender.com/api/quizzes';
+
+                    const response = await fetch(apiBaseUrl, { // Quiz Service URL
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {

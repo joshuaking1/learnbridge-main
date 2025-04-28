@@ -16,6 +16,14 @@
       "destination": "https://learnbridgedu.onrender.com/api/quizzes/:path*"
     },
     {
+      "source": "/api/daily-quizzes/:path*",
+      "destination": "https://learnbridgedu.onrender.com/api/daily-quizzes/:path*"
+    },
+    {
+      "source": "/api/teacher-tools/limits",
+      "destination": "https://learnbridgedu-teacher-tools.onrender.com/api/teacher-tools/limits"
+    },
+    {
       "source": "/api/ai/:path*",
       "destination": "https://learnbridge-ai-service.onrender.com/api/ai/:path*"
     },

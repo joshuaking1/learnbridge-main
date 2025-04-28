@@ -19,7 +19,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast" // Corrected useToast import path
-import { Loader2, ClipboardCopy } from "lucide-react";
+import { Loader2, ClipboardCopy, AlertCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthStore } from '@/stores/useAuthStore'; // <-- Import Auth Store
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -48,6 +48,7 @@ export default function AssessmentCreatorPage() {
     // Add missing state variables
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
+    const [limitReached, setLimitReached] = useState(false);
 
     // Handle Copy to Clipboard
     const handleCopy = useCallback(() => {
@@ -93,7 +94,7 @@ export default function AssessmentCreatorPage() {
         setIsCheckingAiService(true);
         try {
             console.log("Checking AI service availability...");
-            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/health');
+            const response = await fetch('http://localhost:3004/api/ai/health');
             const data = await response.json();
             console.log("AI service health check:", data);
             setIsAiServiceAvailable(response.ok);
@@ -172,21 +173,53 @@ export default function AssessmentCreatorPage() {
             });
 
             console.log("Response received:", response.status);
-            const data = await response.json();
 
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle other error responses
             if (!response.ok) {
-                console.error("Assessment Generation Failed:", data);
                 toast({
                     title: `Generation Failed (${response.status})`,
-                    description: data.error || "An error occurred generating the assessment.",
-                    variant: "destructive",
+                    description: "Error generating assessment. Please try again.",
+                    variant: "destructive"
                 });
-            } else {
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
+
+                if (!data || !data.assessment) {
+                    toast({
+                        title: "Generation Failed",
+                        description: "Received invalid response format from server.",
+                        variant: "destructive"
+                    });
+                    return;
+                }
+
                 console.log("Assessment Generated Successfully.");
                 setGeneratedAssessment(data.assessment);
                 toast({
                     title: "Assessment Generated!",
                     description: "Review the generated assessment below.",
+                });
+            } catch (parseError) {
+                console.error("Error parsing response:", parseError);
+                toast({
+                    title: "Generation Failed",
+                    description: "Received invalid response from server.",
+                    variant: "destructive"
                 });
             }
         } catch (error) {
@@ -235,7 +268,7 @@ export default function AssessmentCreatorPage() {
         console.log("Saving Assessment:", payload.subject, payload.topic);
 
         try {
-            const response = await fetch('http://localhost:3005/api/teacher-tools/assessments', { // http://localhost:3005/api/teacher-tools/assessments
+            const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments', { // https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -244,16 +277,46 @@ export default function AssessmentCreatorPage() {
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error("Failed to save assessment:", data);
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
                 setSaveSuccess(false);
-                toast({ title: `Save Failed (${response.status})`, description: data.error || "Error saving assessment.", variant: "destructive" });
-            } else {
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle other error responses
+            if (!response.ok) {
+                setSaveSuccess(false);
+                toast({
+                    title: `Save Failed (${response.status})`,
+                    description: "Error saving assessment. Please try again.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
                 console.log("Assessment Saved Successfully:", data);
                 setSaveSuccess(true);
-                toast({ title: "Assessment Saved!", description: `Assessment for "${payload.topic}" saved successfully.` });
+                toast({
+                    title: "Assessment Saved!",
+                    description: `Assessment for "${payload.topic}" saved successfully.`
+                });
+            } catch (parseError) {
+                // Even if parsing fails, the save was successful
+                console.log("Assessment Saved Successfully (no JSON response)");
+                setSaveSuccess(true);
+                toast({
+                    title: "Assessment Saved!",
+                    description: `Assessment for "${payload.topic}" saved successfully.`
+                });
             }
         } catch (error) {
             console.error("Network error saving assessment:", error);
@@ -310,10 +373,22 @@ export default function AssessmentCreatorPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Input Form Card */}
-                <Card className="lg:col-span-1">
-                    <CardHeader>
-                        <CardTitle>Assessment Details</CardTitle>
-                        <CardDescription>Specify parameters for the assessment.</CardDescription>
+                <div className="lg:col-span-1 space-y-4">
+                    {/* Usage Limit Reached Alert */}
+                    {limitReached && (
+                        <Alert variant="destructive" className="mb-4 bg-red-600 text-white border-red-700 shadow-md">
+                            <AlertCircle className="h-4 w-4 text-white" />
+                            <AlertTitle className="font-semibold text-white">Usage Limit Reached</AlertTitle>
+                            <AlertDescription className="text-white">
+                                You've reached your daily usage limit for the Assessment Creator. The limit will reset at midnight.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Assessment Details</CardTitle>
+                            <CardDescription>Specify parameters for the assessment.</CardDescription>
                         {isAiServiceAvailable === null && (
                             <div className="mt-2 p-2 bg-gray-100 text-gray-800 rounded-md text-sm">
                                 <div className="flex items-center">
@@ -476,7 +551,8 @@ export default function AssessmentCreatorPage() {
                             </Alert>
                         )}
                     </CardFooter>
-                </Card>
+                    </Card>
+                </div>
 
                 {/* Generated Assessment Display Area */}
                 <Card className="lg:col-span-2" id="generated-assessment-section">

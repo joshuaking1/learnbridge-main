@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 // Removed ScrollArea import
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { isTokenValid } from "@/utils/authDebug";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Define message types for internal use
 interface UserMessage {
@@ -34,6 +35,7 @@ export function AiChatInterfaceWithThinking() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputPrompt, setInputPrompt] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [limitReached, setLimitReached] = useState(false);
     const { toast } = useToast();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const { token, isAuthenticated, refreshToken } = useAuthStore();
@@ -100,11 +102,22 @@ export function AiChatInterfaceWithThinking() {
 
                 if (!response.ok) {
                     console.error("AI Error:", data);
-                    toast({
-                        title: "AI Error",
-                        description: data.response || "Failed to get response from AI.",
-                        variant: "destructive",
-                    });
+
+                    // Check if the error is due to usage limit
+                    if (response.status === 429) {
+                        setLimitReached(true);
+                        toast({
+                            title: "Usage Limit Reached",
+                            description: "You've reached your daily usage limit for this service.",
+                            variant: "destructive",
+                        });
+                    } else {
+                        toast({
+                            title: "AI Error",
+                            description: data.response || "Failed to get response from AI.",
+                            variant: "destructive",
+                        });
+                    }
                 } else {
                     // Make sure the response doesn't contain any thinking process
                     let cleanResponse = data.response;
@@ -144,6 +157,17 @@ export function AiChatInterfaceWithThinking() {
 
     return (
         <div className="flex flex-col h-[600px] max-h-[70vh] border rounded-lg bg-white/5 shadow-inner">
+            {/* Limit Reached Alert */}
+            {limitReached && (
+                <Alert variant="destructive" className="mx-4 mt-4 shadow-md bg-red-600 text-white border-red-700">
+                    <AlertCircle className="h-4 w-4 text-white" />
+                    <AlertTitle className="font-semibold text-white">Usage Limit Reached</AlertTitle>
+                    <AlertDescription className="text-white">
+                        You've reached your daily usage limit for the AI Assistant. The limit will reset at midnight.
+                    </AlertDescription>
+                </Alert>
+            )}
+
             {/* Chat Messages Area */}
             <div className="flex-grow p-4 space-y-4 overflow-auto" ref={scrollAreaRef}>
                 {messages.length === 0 && (
@@ -183,7 +207,7 @@ export function AiChatInterfaceWithThinking() {
                     rows={1}
                     disabled={isLoading}
                 />
-                <Button onClick={handleSendMessage} disabled={isLoading || !inputPrompt.trim()} className="bg-brand-orange hover:bg-brand-orange/90">
+                <Button onClick={handleSendMessage} disabled={isLoading || !inputPrompt.trim() || limitReached} className="bg-brand-orange hover:bg-brand-orange/90">
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
                 </Button>
             </div>

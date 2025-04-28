@@ -82,7 +82,12 @@ export default function TakeQuizPage() {
                 setQuizResults(null); // Clear previous results if any
                 try {
                     // Fetch questions (no answers)
-                    const response = await fetch(`https://learnbridgedu.onrender.com/api/quizzes/${quizId}/questions`, {
+                    // Use relative URL in production, which will be handled by Vercel rewrites
+                    const apiBaseUrl = process.env.NODE_ENV === 'production'
+                        ? '/api/quizzes'
+                        : 'https://learnbridgedu.onrender.com/api/quizzes';
+
+                    const response = await fetch(`${apiBaseUrl}/${quizId}/questions`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -153,7 +158,7 @@ export default function TakeQuizPage() {
         console.log("Submitting answers:", selectedAnswers);
 
         try {
-            const response = await fetch(`https://learnbridgedu.onrender.com/api/quizzes/attempts/${quizId}`, {
+            const response = await fetch(`http://localhost:3006/api/quizzes/attempts/${quizId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

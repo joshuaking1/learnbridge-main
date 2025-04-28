@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get the authorization header from the incoming request
     const authHeader = request.headers.get('Authorization');
-
+    
     if (!authHeader) {
       return NextResponse.json(
         { error: 'Authentication required' },

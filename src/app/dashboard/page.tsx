@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { UsageLimitPopup } from '@/components/ui/usage-limit-popup'; // Import the popup
 
 // Add declaration for lucide-react to fix TypeScript error
 declare module 'lucide-react';
@@ -43,16 +44,17 @@ export default function DashboardPage() {
     const router = useRouter();
     const { toast } = useToast();
 
-    // --- State to prevent hydration mismatch ---
+    // --- State to prevent hydration mismatch --- 
     const [hasMounted, setHasMounted] = useState(false);
     const [greeting, setGreeting] = useState("Welcome");
     const [userName, setUserName] = useState("User");
+    const [showUsagePopup, setShowUsagePopup] = useState(false); // State for popup visibility
 
     // --- Get state and actions from the store ---
     // Only access auth state after component has mounted
     const { user, isAuthenticated, isLoading: isLoadingAuth, clearAuth } = useAuthStore();
 
-    // --- Effect to set hasMounted on client ---
+    // --- Effect to set hasMounted on client and show popup ---
     useEffect(() => {
         setHasMounted(true);
         console.log("Component mounted, auth state:", {
@@ -61,6 +63,16 @@ export default function DashboardPage() {
             hasUser: !!user,
             user: user
         });
+
+        // Show popup only once after mount and if authenticated
+        if (!isLoadingAuth && isAuthenticated) {
+            // Use a flag in localStorage or sessionStorage to show only once per session/login
+            const popupShown = sessionStorage.getItem('usagePopupShown');
+            if (!popupShown) {
+                setShowUsagePopup(true);
+                sessionStorage.setItem('usagePopupShown', 'true');
+            }
+        }
 
         // Set greeting based on time of day
         const hour = new Date().getHours();
@@ -132,6 +144,12 @@ export default function DashboardPage() {
     // --- Render dashboard ---
     return (
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-2 sm:p-4">
+            {/* Render the popup */} 
+            <UsageLimitPopup 
+                isOpen={showUsagePopup} 
+                onClose={() => setShowUsagePopup(false)} 
+            />
+
             <div className="container mx-auto">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
                     <h1 className="text-2xl sm:text-3xl font-arvo font-bold text-white">
@@ -194,12 +212,19 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* Profile Link */}
-                <div className="mt-6 sm:mt-8">
+                {/* Profile and Usage Limits Links */}
+                <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <Link href="/dashboard/profile" className="block">
-                        <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-6 rounded-lg border border-white/20 hover:bg-white/20 transition-all">
+                        <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-6 rounded-lg border border-white/20 hover:bg-white/20 transition-all h-full">
                             <h2 className="text-lg sm:text-xl font-arvo font-bold text-white mb-2">Profile Settings</h2>
                             <p className="text-white/80 text-sm sm:text-base">View and manage your profile information</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/dashboard/usage-limits" className="block">
+                        <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-6 rounded-lg border border-white/20 hover:bg-white/20 transition-all h-full">
+                            <h2 className="text-lg sm:text-xl font-arvo font-bold text-white mb-2">Usage Limits</h2>
+                            <p className="text-white/80 text-sm sm:text-base">Monitor your daily usage limits across all services</p>
                         </div>
                     </Link>
                 </div>
@@ -261,7 +286,7 @@ export default function DashboardPage() {
                             <div className="flex flex-wrap gap-2">
                                 <Link href="/admin/uploads"><Button variant="secondary" className="w-full sm:w-auto">Upload Documents</Button></Link>
                                 <Link href="/dashboard/admin/daily-quizzes"><Button variant="secondary" className="w-full sm:w-auto">Manage Daily Quizzes</Button></Link>
-                                {/* Add links to user management, etc. later */}
+                                <Link href="/dashboard/admin/users"><Button variant="secondary" className="w-full sm:w-auto">User Management</Button></Link>
                             </div>
                         </div>
                     </div>

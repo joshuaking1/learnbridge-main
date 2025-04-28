@@ -24,11 +24,13 @@ import {
     X,             // Close icon for mobile toggle
     User,          // Profile icon
     Calendar,      // Calendar icon for Daily Quizzes
-    GraduationCap  // Learning Hub icon
+    GraduationCap, // Learning Hub icon
+    Users,         // User Management icon
+    BarChart3      // Usage Limits icon
 } from "lucide-react";
 
 // Other icons that might be used later
-// import { Users, UploadCloud } from "lucide-react";
+// import { UploadCloud } from "lucide-react";
 
 // Define navigation items structure
 interface NavItem {
@@ -77,11 +79,14 @@ export function Sidebar({ collapseEventName }: SidebarProps) {
         { href: "/dashboard/student-hub/daily-quizzes", label: "Daily Quizzes", icon: Calendar, roles: ['student'] },
         { href: "/dashboard/student-hub/quizzes", label: "All Quizzes", icon: BookOpenCheck, roles: ['student'] },
         // --- Admin Tools ---
+        { href: "/dashboard/admin/users", label: "User Management", icon: Users, roles: ['admin'] },
         { href: "/dashboard/admin/daily-quizzes", label: "Manage Daily Quizzes", icon: Calendar, roles: ['admin'] },
         // --- Community (Placeholder) ---
         // { href: "/dashboard/plc", label: "PLC", icon: Users, roles: ['teacher', 'admin'] },
         // --- AI Assistant ---
         { href: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot, roles: ['teacher', 'student', 'admin'] },
+        // --- Usage Limits ---
+        { href: "/dashboard/usage-limits", label: "Usage Limits", icon: BarChart3, roles: ['teacher', 'student', 'admin'] },
         // --- Profile ---
         { href: "/dashboard/profile", label: "Profile", icon: User, roles: ['teacher', 'student', 'admin'] },
     ];

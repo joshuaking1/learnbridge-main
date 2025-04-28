@@ -70,7 +70,12 @@ export default function ViewAssessmentPage() {
                 setErrorLoading(null);
                 console.log(`Fetching assessment with ID: ${assessmentId}`);
                 try {
-                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments/${assessmentId}`, {
+                    // Use relative URL in production, which will be handled by Vercel rewrites
+                    const apiBaseUrl = process.env.NODE_ENV === 'production'
+                        ? '/api/teacher-tools'
+                        : 'https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools';
+
+                    const response = await fetch(`${apiBaseUrl}/assessments/${assessmentId}`, { // Use assessment endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
 

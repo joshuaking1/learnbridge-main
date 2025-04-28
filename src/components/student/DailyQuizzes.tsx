@@ -24,29 +24,39 @@ export function DailyQuizzes() {
     const { token } = useAuthStore();
     const { toast } = useToast();
     const router = useRouter();
-    
+
     const [quizzes, setQuizzes] = useState<DailyQuiz[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     useEffect(() => {
         const fetchDailyQuizzes = async () => {
             if (!token) return;
-            
+
             setIsLoading(true);
             setError(null);
-            
+
             try {
-                const response = await fetch('https://learnbridgedu.onrender.com/api/daily-quizzes', {
+                // Use relative URL in production, which will be handled by Vercel rewrites
+                // or use localhost in development
+                const apiUrl = process.env.NODE_ENV === 'production'
+                    ? '/api/quizzes'
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes';
+
+                const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
                 if (!response.ok) {
+                    // Handle rate limit error specifically
+                    if (response.status === 429) {
+                        throw new Error('Daily usage limit reached. Please try again tomorrow.');
+                    }
                     throw new Error('Failed to fetch daily quizzes');
                 }
-                
+
                 const data = await response.json();
                 setQuizzes(data);
             } catch (error) {
@@ -61,18 +71,18 @@ export function DailyQuizzes() {
                 setIsLoading(false);
             }
         };
-        
+
         fetchDailyQuizzes();
     }, [token, toast]);
-    
+
     const handleStartQuiz = (quizId: number) => {
         router.push(`/dashboard/student-hub/daily-quizzes/${quizId}`);
     };
-    
+
     const handleViewResults = (quizId: number) => {
         router.push(`/dashboard/student-hub/daily-quizzes/${quizId}/results`);
     };
-    
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -81,13 +91,13 @@ export function DailyQuizzes() {
             </div>
         );
     }
-    
+
     if (error) {
         return (
             <div className="bg-red-50 border border-red-200 rounded-md p-4 text-center">
                 <p className="text-red-600">{error}</p>
-                <Button 
-                    variant="outline" 
+                <Button
+                    variant="outline"
                     className="mt-2"
                     onClick={() => window.location.reload()}
                 >
@@ -96,7 +106,7 @@ export function DailyQuizzes() {
             </div>
         );
     }
-    
+
     if (quizzes.length === 0) {
         return (
             <Card className="border-dashed border-2 border-gray-200">
@@ -108,7 +118,7 @@ export function DailyQuizzes() {
             </Card>
         );
     }
-    
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -117,7 +127,7 @@ export function DailyQuizzes() {
                     {quizzes.length} Available
                 </Badge>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {quizzes.map((quiz) => (
                     <Card key={quiz.id} className={quiz.attempted ? "border-green-200 bg-green-50" : ""}>
@@ -146,15 +156,15 @@ export function DailyQuizzes() {
                         </CardContent>
                         <CardFooter>
                             {quiz.attempted ? (
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     className="w-full"
                                     onClick={() => handleViewResults(quiz.id)}
                                 >
                                     View Results
                                 </Button>
                             ) : (
-                                <Button 
+                                <Button
                                     className="w-full bg-brand-orange hover:bg-brand-orange/90"
                                     onClick={() => handleStartQuiz(quiz.id)}
                                 >

@@ -3,6 +3,7 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DailyQuizzes } from "@/components/student/DailyQuizzes";
+import { UsageLimits } from "@/components/student/UsageLimits";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, BookOpen } from "lucide-react";
 
@@ -14,7 +15,7 @@ export default function DailyQuizzesPage() {
                 description="Test your knowledge with daily quizzes for your books"
                 icon={Calendar}
             />
-            
+
             <Tabs defaultValue="today" className="w-full">
                 <TabsList className="mb-4">
                     <TabsTrigger value="today" className="flex items-center">
@@ -26,11 +27,12 @@ export default function DailyQuizzesPage() {
                         By Book
                     </TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="today" className="mt-0">
+                    <UsageLimits />
                     <DailyQuizzes />
                 </TabsContent>
-                
+
                 <TabsContent value="books" className="mt-0">
                     <div className="bg-white p-6 rounded-md border border-gray-200">
                         <h3 className="text-lg font-medium mb-4">Filter Quizzes by Book</h3>

@@ -16,10 +16,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast"; // Corrected path
-import { Loader2, ClipboardCopy } from "lucide-react";
+import { Loader2, ClipboardCopy, AlertCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthStore } from '@/stores/useAuthStore'; // Corrected path
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TeacherToolsUsageLimits } from "@/components/teacher/TeacherToolsUsageLimits";
 
 // Validation Schema - Updated
 const lessonPlanSchema = z.object({
@@ -41,6 +42,7 @@ export default function LessonPlannerPage() {
     const [generatedPlan, setGeneratedPlan] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
+    const [limitReached, setLimitReached] = useState(false);
 
     // Auth State & Hydration Fix
     const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
@@ -74,25 +76,82 @@ export default function LessonPlannerPage() {
         setGeneratedPlan(null);
         setSaveSuccess(null);
         console.log("Requesting Lesson Plan:", values);
-        if (!token) { /* ... auth check ... */ return; }
+
+        if (!token) {
+            toast({
+                title: "Authentication Error",
+                description: "Please log in again.",
+                variant: "destructive"
+            });
+            setIsGenerating(false);
+            return;
+        }
+
         try {
-            const response = await fetch('http://localhost:3004/api/ai/generate/lesson-plan', { //'http://localhost:3004/api/ai/generate/lesson-plan
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                 body: JSON.stringify(values),
-             });
-            const data = await response.json();
+            // Simple fetch with basic error handling
+            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/lesson-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(values),
+            });
+
+            console.log("Response status:", response.status);
+
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle other error responses
             if (!response.ok) {
-                console.error("Lesson Plan Generation Failed:", data);
-                toast({ title: `Generation Failed (${response.status})`, description: data.error || "Error generating plan.", variant: "destructive" });
-            } else {
+                toast({
+                    title: `Generation Failed (${response.status})`,
+                    description: "Error generating lesson plan. Please try again.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
+
+                if (!data || !data.lessonPlan) {
+                    toast({
+                        title: "Generation Failed",
+                        description: "Received invalid response format from server.",
+                        variant: "destructive"
+                    });
+                    return;
+                }
+
                 console.log("Lesson Plan Generated Successfully.");
                 setGeneratedPlan(data.lessonPlan);
-                toast({ title: "Lesson Plan Generated!", description: "Review the generated plan below." });
+                toast({
+                    title: "Lesson Plan Generated!",
+                    description: "Review the generated plan below."
+                });
+            } catch (parseError) {
+                console.error("Error parsing response:", parseError);
+                toast({
+                    title: "Generation Failed",
+                    description: "Received invalid response from server.",
+                    variant: "destructive"
+                });
             }
         } catch (error) {
             console.error("Network error generating lesson plan:", error);
-            toast({ title: "Network Error", description: "Could not connect to AI service.", variant: "destructive" });
+            toast({
+                title: "Network Error",
+                description: "Could not connect to AI service.",
+                variant: "destructive"
+            });
         } finally {
             setIsGenerating(false);
         }
@@ -101,38 +160,92 @@ export default function LessonPlannerPage() {
     // --- handleSavePlan Function ---
     const handleSavePlan = async () => {
         if (!generatedPlan || isSaving) return;
-        if (!token) { /* ... auth check ... */ return; }
+
+        if (!token) {
+            toast({
+                title: "Authentication Error",
+                description: "Please log in again.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         setIsSaving(true);
         setSaveSuccess(null);
+
         const currentInputs = form.getValues();
         const payload = {
-            subject: currentInputs.subject, classLevel: currentInputs.classLevel, topic: currentInputs.topic,
-            duration: currentInputs.duration, strand: currentInputs.strand,
-            subStrand: currentInputs.subStrand, // Send optional subStrand
-            week: currentInputs.week, // <-- Send week instead of contentStandard
+            subject: currentInputs.subject,
+            classLevel: currentInputs.classLevel,
+            topic: currentInputs.topic,
+            duration: currentInputs.duration,
+            strand: currentInputs.strand,
+            subStrand: currentInputs.subStrand,
+            week: currentInputs.week,
             planContent: generatedPlan
         };
+
         console.log("Saving Lesson Plan:", payload.subject, payload.topic);
+
         try {
-            const response = await fetch('http://localhost:3005/api/teacher-tools/lessons', {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                 body: JSON.stringify(payload),
-             });
-            const data = await response.json();
-            if (!response.ok) {
-                console.error("Failed to save lesson plan:", data);
+            // Simple fetch with basic error handling
+            const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(payload),
+            });
+
+            console.log("Save response status:", response.status);
+
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
                 setSaveSuccess(false);
-                toast({ title: `Save Failed (${response.status})`, description: data.error || "Error saving plan.", variant: "destructive" });
-            } else {
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle other error responses
+            if (!response.ok) {
+                setSaveSuccess(false);
+                toast({
+                    title: `Save Failed (${response.status})`,
+                    description: "Error saving lesson plan. Please try again.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
                 console.log("Lesson Plan Saved Successfully:", data);
                 setSaveSuccess(true);
-                toast({ title: "Lesson Plan Saved!", description: `Plan for "${payload.topic}" saved.` });
+                toast({
+                    title: "Lesson Plan Saved!",
+                    description: `Plan for "${payload.topic}" saved.`
+                });
+            } catch (parseError) {
+                // Even if parsing fails, the save was successful
+                console.log("Lesson Plan Saved Successfully (no JSON response)");
+                setSaveSuccess(true);
+                toast({
+                    title: "Lesson Plan Saved!",
+                    description: `Plan for "${payload.topic}" saved.`
+                });
             }
         } catch (error) {
             console.error("Network error saving lesson plan:", error);
             setSaveSuccess(false);
-            toast({ title: "Network Error", description: "Could not connect to server to save plan.", variant: "destructive" });
+            toast({
+                title: "Network Error",
+                description: "Could not connect to server to save plan.",
+                variant: "destructive"
+            });
         } finally {
             setIsSaving(false);
         }
@@ -201,11 +314,26 @@ export default function LessonPlannerPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Input Form Card */}
-                <Card className="lg:col-span-1">
-                    <CardHeader>
-                        <CardTitle>Lesson Details</CardTitle>
-                        <CardDescription>Enter the specifics for your lesson.</CardDescription>
-                    </CardHeader>
+                <div className="lg:col-span-1 space-y-4">
+                    {/* Usage Limit Reached Alert */}
+                    {limitReached && (
+                        <Alert variant="destructive" className="mb-4 bg-red-600 text-white border-red-700 shadow-md">
+                            <AlertCircle className="h-4 w-4 text-white" />
+                            <AlertTitle className="font-semibold text-white">Usage Limit Reached</AlertTitle>
+                            <AlertDescription className="text-white">
+                                You've reached your daily usage limit for the Lesson Planner. The limit will reset at midnight.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Usage Limits */}
+                    <TeacherToolsUsageLimits />
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Lesson Details</CardTitle>
+                            <CardDescription>Enter the specifics for your lesson.</CardDescription>
+                        </CardHeader>
                     <CardContent>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -246,6 +374,7 @@ export default function LessonPlannerPage() {
                         </Form>
                     </CardContent>
                 </Card>
+                </div>
 
                 {/* Generated Plan Display Area */}
                 <Card className="lg:col-span-2" id="generated-plan-section">

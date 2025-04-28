@@ -18,11 +18,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast"; // Fixed useToast import path
-import { Loader2, ClipboardCopy } from "lucide-react";
+import { Loader2, ClipboardCopy, AlertCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthStore } from '@/stores/useAuthStore'; // Corrected store import path
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TeacherToolsUsageLimits } from "@/components/teacher/TeacherToolsUsageLimits";
 
 // Validation Schema for ToS Inputs - Updated
 const tosSchema = z.object({
@@ -54,6 +55,7 @@ export default function TosBuilderPage() {
 
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
+    const [limitReached, setLimitReached] = useState(false);
 
     // Handle Copy to Clipboard
     const handleCopy = useCallback(() => {
@@ -113,7 +115,7 @@ export default function TosBuilderPage() {
             const fetchBooks = async () => {
                 setIsLoadingBooks(true);
                 try {
-                    const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', {
+                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) throw new Error('Failed to fetch book list');
@@ -185,22 +187,53 @@ export default function TosBuilderPage() {
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json(); // Always try to parse JSON
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
 
+            // Handle other error responses
             if (!response.ok) {
-                console.error("ToS Generation Failed:", data);
                 toast({
                     title: `Generation Failed (${response.status})`,
-                    description: data.error || "An error occurred generating the ToS.", // Use error from JSON if available
-                    variant: "destructive",
+                    description: "Error generating Table of Specifications. Please try again.",
+                    variant: "destructive"
                 });
-            } else {
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
+
+                if (!data || !data.tableOfSpecification) {
+                    toast({
+                        title: "Generation Failed",
+                        description: "Received invalid response format from server.",
+                        variant: "destructive"
+                    });
+                    return;
+                }
+
                 console.log("ToS Generated Successfully.");
                 // Ensure the key matches what the backend sends
                 setGeneratedTos(data.tableOfSpecification || "No ToS generated");
                 toast({
                     title: "Table of Specifications Generated!",
                     description: "Review the generated table below.",
+                });
+            } catch (parseError) {
+                console.error("Error parsing response:", parseError);
+                toast({
+                    title: "Generation Failed",
+                    description: "Received invalid response from server.",
+                    variant: "destructive"
                 });
             }
         } catch (error) {
@@ -240,13 +273,45 @@ export default function TosBuilderPage() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),
             });
-            const data = await response.json();
+            // Handle usage limit (429) specifically
+            if (response.status === 429) {
+                setSaveSuccess(false);
+                setLimitReached(true);
+                toast({
+                    title: "Usage Limit Reached",
+                    description: "You've reached your daily usage limit for this service.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle other error responses
             if (!response.ok) {
                 setSaveSuccess(false);
-                toast({ title: `Save Failed (${response.status})`, description: data.error || "Error saving ToS.", variant: "destructive" });
-            } else {
+                toast({
+                    title: `Save Failed (${response.status})`,
+                    description: "Error saving Table of Specifications. Please try again.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            // Handle successful response
+            try {
+                const data = await response.json();
                 setSaveSuccess(true);
-                toast({ title: "ToS Saved!", description: `Table of Specs for "${payload.assessmentTitle}" saved.` });
+                toast({
+                    title: "ToS Saved!",
+                    description: `Table of Specs for "${payload.assessmentTitle}" saved.`
+                });
+            } catch (parseError) {
+                // Even if parsing fails, the save was successful
+                console.log("ToS Saved Successfully (no JSON response)");
+                setSaveSuccess(true);
+                toast({
+                    title: "ToS Saved!",
+                    description: `Table of Specs for "${payload.assessmentTitle}" saved.`
+                });
             }
         } catch (error) {
             setSaveSuccess(false);
@@ -293,11 +358,26 @@ export default function TosBuilderPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Input Form Card */}
-                <Card className="lg:col-span-1">
-                    <CardHeader>
-                        <CardTitle>Assessment Blueprint Details</CardTitle>
-                        <CardDescription>Provide the details for the assessment blueprint.</CardDescription>
-                    </CardHeader>
+                <div className="lg:col-span-1 space-y-4">
+                    {/* Usage Limit Reached Alert */}
+                    {limitReached && (
+                        <Alert variant="destructive" className="mb-4 bg-red-600 text-white border-red-700 shadow-md">
+                            <AlertCircle className="h-4 w-4 text-white" />
+                            <AlertTitle className="font-semibold text-white">Usage Limit Reached</AlertTitle>
+                            <AlertDescription className="text-white">
+                                You've reached your daily usage limit for the ToS Builder. The limit will reset at midnight.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Usage Limits */}
+                    <TeacherToolsUsageLimits />
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Assessment Blueprint Details</CardTitle>
+                            <CardDescription>Provide the details for the assessment blueprint.</CardDescription>
+                        </CardHeader>
                     <CardContent>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -389,6 +469,7 @@ export default function TosBuilderPage() {
                         </Form>
                     </CardContent>
                 </Card>
+                </div>
 
                 {/* Generated ToS Display Area */}
                 <Card className="lg:col-span-2" id="generated-tos-section">

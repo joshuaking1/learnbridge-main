@@ -11,7 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Calendar, ArrowLeft, Loader2, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
+import { UsageLimits } from '@/components/student/UsageLimits';
 
 export default function AdminDailyQuizzesPage() {
     const router = useRouter();
@@ -36,7 +37,12 @@ export default function AdminDailyQuizzesPage() {
         setGenerationResults(null);
 
         try {
-            const response = await fetch('https://learnbridgedu.onrender.com/api/daily-quizzes/generate', {
+            // Use relative URL in production, which will be handled by Vercel rewrites
+            const apiBaseUrl = process.env.NODE_ENV === 'production'
+                ? '/api/daily-quizzes'
+                : 'http://localhost:3006/api/daily-quizzes';
+
+            const response = await fetch(`${apiBaseUrl}/generate`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -45,6 +51,11 @@ export default function AdminDailyQuizzesPage() {
             });
 
             if (!response.ok) {
+                // Handle rate limit error specifically
+                if (response.status === 429) {
+                    const errorData = await response.json();
+                    throw new Error('Daily usage limit reached. Please try again tomorrow.');
+                }
                 throw new Error(`Failed to generate quizzes: ${response.status} ${response.statusText}`);
             }
 
@@ -86,6 +97,9 @@ export default function AdminDailyQuizzesPage() {
                 description="Manage daily quiz generation for SBC books"
                 icon={Calendar}
             />
+
+            {/* Display usage limits for non-admin users */}
+            {user?.role !== 'admin' && <UsageLimits />}
 
             <Card className="mb-6">
                 <CardHeader>

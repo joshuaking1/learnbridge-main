@@ -1,4 +1,3 @@
-// frontend/src/app/dashboard/my-rubrics/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,15 +16,16 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format } from 'date-fns';
 
-// Interface for rubric summary data - adjust fields to match GET /rubrics response
-interface RubricSummary {
-    id: number;
-    title: string | null;
-    assessment_title: string;
-    assessment_type: string;
-    class_level: string;
-    created_at: string;
-    updated_at: string;
+// Define the Rubric interface
+interface Rubric {
+    id: string;
+    title?: string;
+    assessment_title?: string;
+    assessment_type?: string;
+    class_level?: string;
+    created_at?: string;
+    updated_at?: string;
+    user_id?: string;
 }
 
 export default function MyRubricsPage() {
@@ -33,119 +33,138 @@ export default function MyRubricsPage() {
     const { toast } = useToast();
     const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
-    const [rubrics, setRubrics] = useState<RubricSummary[]>([]); // State for rubrics
-    const [isLoadingRubrics, setIsLoadingRubrics] = useState(true); // Loading state
+    const [rubrics, setRubrics] = useState<Rubric[]>([]);
+    const [isLoadingRubrics, setIsLoadingRubrics] = useState(false);
     const [errorLoading, setErrorLoading] = useState<string | null>(null);
-    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    // --- Mount and Auth Check ---
-    useEffect(() => { setHasMounted(true); }, []);
+    // --- Mount Effect ---
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    // --- Auth Check Effect ---
     useEffect(() => {
         if (hasMounted && !isLoadingAuth && !isAuthenticated) {
-            toast({ title: "Authentication Required", variant: "destructive" });
+            toast({
+                title: "Authentication Required",
+                description: "Please log in to access this page.",
+                variant: "destructive",
+            });
             router.push('/login');
         }
-        if (hasMounted && !isLoadingAuth && isAuthenticated && user?.role !== 'teacher') {
-           toast({ title: "Access Denied: Teachers Only", variant: "destructive" });
-           router.push('/dashboard');
-        }
-    }, [hasMounted, isLoadingAuth, isAuthenticated, user, router, toast]);
+    }, [hasMounted, isLoadingAuth, isAuthenticated, router, toast]);
 
-    // --- Fetch Saved Rubrics ---
+    // --- Fetch Rubrics Effect ---
     useEffect(() => {
         const fetchRubrics = async () => {
             if (hasMounted && isAuthenticated && token) {
                 setIsLoadingRubrics(true);
                 setErrorLoading(null);
                 try {
-                    // Use the correct endpoint for fetching rubrics
-                    const response = await fetch('http://localhost:3005/api/teacher-tools/rubrics', {
+                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
-                        let errorMsg = `Failed to fetch rubrics (Status: ${response.status})`;
+                        let errorMsg = `Failed to fetch rubrics list (Status: ${response.status})`;
                         try { const errorData = await response.json(); errorMsg = errorData.error || errorMsg; } catch (e) {}
                         throw new Error(errorMsg);
                     }
-                    const data: RubricSummary[] = await response.json();
-                    setRubrics(data); // Set rubrics state
-                    console.log(`Fetched ${data.length} rubrics.`);
-                } catch (error: any) {
+                    const data = await response.json();
+                    setRubrics(data);
+                } catch (error) {
                     console.error("Error fetching rubrics:", error);
-                    const errorMsg = error.message || "Could not load your saved rubrics.";
-                    setErrorLoading(errorMsg);
-                    setRubrics([]);
-                    toast({ title: "Loading Error", description: errorMsg, variant: "destructive" });
+                    setErrorLoading(error instanceof Error ? error.message : "Failed to load rubrics");
                 } finally {
                     setIsLoadingRubrics(false);
                 }
-            } else if (hasMounted && !isLoadingAuth && !isAuthenticated) {
-                setIsLoadingRubrics(false);
             }
         };
-        fetchRubrics();
-    }, [hasMounted, isAuthenticated, token, toast]);
 
-    // --- Handle Delete Rubric ---
-    const handleDeleteRubric = async (rubricId: number) => {
-        if (!token || deletingId) return;
+        fetchRubrics();
+    }, [hasMounted, isAuthenticated, token]);
+
+    // --- Delete Rubric Handler ---
+    const handleDeleteRubric = async (rubricId: string) => {
+        if (!token) return;
+        
         setDeletingId(rubricId);
         try {
-            // Use the correct endpoint for deleting rubrics
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/rubrics/${rubricId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics/${rubricId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
+
             if (!response.ok) {
-                 let errorMsg = `Failed to delete rubric (Status: ${response.status})`;
-                 try { const errorData = await response.json(); errorMsg = errorData.error || errorMsg; } catch(e) {}
-                 throw new Error(errorMsg);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Failed to delete rubric (Status: ${response.status})`);
             }
-            // Update state
+
+            // Remove the deleted rubric from state
             setRubrics(prev => prev.filter(r => r.id !== rubricId));
-            toast({ title: "Success", description: "Rubric deleted successfully." });
-        } catch (error: any) {
+            toast({ title: "Rubric Deleted", description: "The rubric has been permanently deleted." });
+        } catch (error) {
             console.error("Error deleting rubric:", error);
-            toast({ title: "Delete Error", description: error.message || "Could not delete rubric.", variant: "destructive" });
+            toast({ 
+                title: "Delete Failed", 
+                description: error instanceof Error ? error.message : "Failed to delete rubric", 
+                variant: "destructive" 
+            });
         } finally {
             setDeletingId(null);
         }
     };
 
     // --- Render Logic ---
-    if (!hasMounted || isLoadingAuth) { return <div>Loading...</div>; }
-    if (!isAuthenticated || !user || user.role !== 'teacher') { return <div>Not authenticated or not a teacher</div>; }
+    if (!hasMounted || isLoadingAuth) { 
+        return <div>Loading...</div>; 
+    }
+    
+    if (!isAuthenticated || !user || user.role !== 'teacher') { 
+        return <div>Not authenticated or not a teacher</div>; 
+    }
 
     return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8">
             <header className="mb-6 flex justify-between items-center">
-                 <div>
-                     <h1 className="text-3xl font-bold text-brand-darkblue">My Saved Rubrics</h1>
-                     <nav className="text-sm text-gray-500">
-                         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
-                         {' / '}
-                         <span>My Rubrics</span>
-                     </nav>
-                 </div>
-                 <Button variant="outline" onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
-             </header>
+                <div>
+                    <h1 className="text-3xl font-bold text-brand-darkblue">My Saved Rubrics</h1>
+                    <nav className="text-sm text-gray-500">
+                        <Link href="/dashboard" className="hover:underline">Dashboard</Link>
+                        {' / '}
+                        <span>My Rubrics</span>
+                    </nav>
+                </div>
+                <Button variant="outline" onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
+            </header>
 
             {/* Loading State */}
-            {isLoadingRubrics && (<div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" /></div>)}
+            {isLoadingRubrics && (
+                <div className="flex justify-center items-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" />
+                </div>
+            )}
+            
             {/* Error State */}
-            {!isLoadingRubrics && errorLoading && (<Alert variant="destructive" className="mb-6"><AlertTitle>Error</AlertTitle><AlertDescription>{errorLoading}</AlertDescription></Alert>)}
+            {!isLoadingRubrics && errorLoading && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{errorLoading}</AlertDescription>
+                </Alert>
+            )}
+            
             {/* No Rubrics State */}
-             {!isLoadingRubrics && !errorLoading && rubrics.length === 0 && (
-                 <Card className="text-center py-10 mt-6">
-                     <CardHeader><CardTitle>No Saved Rubrics Yet</CardTitle></CardHeader>
-                     <CardContent>
-                         <CardDescription className="mb-4">Generate a rubric using the AI Rubric Generator!</CardDescription>
-                         <Link href="/dashboard/rubric-generator">
-                             <Button>Go to Rubric Generator</Button>
-                         </Link>
-                     </CardContent>
-                 </Card>
-             )}
+            {!isLoadingRubrics && !errorLoading && rubrics.length === 0 && (
+                <Card className="text-center py-10 mt-6">
+                    <CardHeader><CardTitle>No Saved Rubrics Yet</CardTitle></CardHeader>
+                    <CardContent>
+                        <CardDescription className="mb-4">Generate a rubric using the AI Rubric Generator!</CardDescription>
+                        <Link href="/dashboard/rubric-generator">
+                            <Button>Go to Rubric Generator</Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Display Rubrics List */}
             {!isLoadingRubrics && !errorLoading && rubrics.length > 0 && (
