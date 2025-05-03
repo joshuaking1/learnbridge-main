@@ -268,7 +268,7 @@ export default function AssessmentCreatorPage() {
         console.log("Saving Assessment:", payload.subject, payload.topic);
 
         try {
-            const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments', { // https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments
+            const response = await fetch('http://localhost:3005/api/teacher-tools/assessments', { // http://localhost:3005/api/teacher-tools/assessments
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

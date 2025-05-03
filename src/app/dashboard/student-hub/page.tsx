@@ -6,17 +6,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from "@/hooks/use-toast";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, BookOpen, History, Calendar } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AiChatInterfaceWithThinking } from '@/components/ai/AiChatInterfaceWithThinking'; // Import AI Chat Interface with Thinking
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, BookOpen, History, Calendar, GraduationCap, Users, MessageSquare, Brain } from "lucide-react";
+import { AiChatInterfaceWithThinking } from '@/components/ai/AiChatInterfaceWithThinking';
+import { BookCollection } from '@/components/student/BookCollection';
+import { AiTeacherAvatar } from '@/components/ai/AiTeacherAvatar';
+import { LiveClassroom } from '@/components/classroom/LiveClassroom';
+import { StudyGroup } from '@/components/classroom/StudyGroup';
+import { ProgressTracker } from '@/components/classroom/ProgressTracker';
 
 // Interface for content chunks
 interface ContentChunk {
@@ -132,6 +131,8 @@ export default function StudentHubPage() {
         }
     }, [hasMounted, isAuthenticated, token, selectedBook, selectedSubject, toast]); // Re-fetch when filters change
 
+    const [activeClassroomTab, setActiveClassroomTab] = useState("live");
+    const [isAiTeacherActive, setIsAiTeacherActive] = useState(false);
 
     // --- Render Logic ---
     if (!hasMounted || isLoadingAuth) {
@@ -177,153 +178,130 @@ export default function StudentHubPage() {
                  </Button>
              </header>
 
-            {/* Filters Section (Simplified) */}
-            <Card className="mb-6 border-slate-700 bg-slate-800/50 shadow-xl overflow-hidden">
-                <CardHeader className="bg-slate-800 border-b border-slate-700">
-                    <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
-                        <CardTitle className="text-white">Browse Content</CardTitle>
+            {/* Main Classroom Section */}
+            <Card className="mb-8 border-slate-200 shadow-lg">
+                <CardHeader className="bg-slate-50 border-b border-slate-200">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <AiTeacherAvatar isActive={isAiTeacherActive} />
+                            <div>
+                                <CardTitle className="text-xl">Virtual Classroom</CardTitle>
+                                <CardDescription>Interactive learning with AI teacher and peers</CardDescription>
+                            </div>
+                        </div>
+                        <Button 
+                            variant={isAiTeacherActive ? "default" : "outline"}
+                            onClick={() => setIsAiTeacherActive(!isAiTeacherActive)}
+                            className={isAiTeacherActive ? "bg-green-600 hover:bg-green-700" : ""}
+                        >
+                            <Brain className="h-4 w-4 mr-2" />
+                            {isAiTeacherActive ? "AI Teacher Active" : "Activate AI Teacher"}
+                        </Button>
                     </div>
-                    <CardDescription className="text-slate-400">Select a subject and book to view curriculum content.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col md:flex-row gap-6 pt-6">
-                    {/* Subject Select */}
-                     <div className="flex-1 space-y-2">
-                         <Label htmlFor="subject-select" className="text-slate-300">Subject</Label>
-                         <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                             <SelectTrigger id="subject-select" className="bg-slate-700 border-slate-600 text-white">
-                                <SelectValue placeholder="Select Subject" />
-                             </SelectTrigger>
-                             <SelectContent className="bg-slate-700 border-slate-600 text-white">
-                                 {/* Hardcode subjects for now */}
-                                 <SelectItem value="Art and Design Studio">Art and Design Studio</SelectItem>
-                                 <SelectItem value="Integrated Science">Integrated Science</SelectItem>
-                                 <SelectItem value="Mathematics">Mathematics</SelectItem>
-                                 <SelectItem value="English Language">English Language</SelectItem>
-                                 {/* Add more subjects */}
-                             </SelectContent>
-                         </Select>
-                     </div>
-                     {/* Book Select (Dynamic) */}
-                     <div className="flex-1 space-y-2">
-                         <Label htmlFor="book-select" className="text-slate-300">Book/Level</Label>
-                         <Select value={selectedBook} onValueChange={setSelectedBook} disabled={isLoadingBooks || availableBooks.length === 0}>
-                             <SelectTrigger id="book-select" className="bg-slate-700 border-slate-600 text-white">
-                                <SelectValue placeholder={isLoadingBooks ? "Loading..." : "Select Book"} />
-                             </SelectTrigger>
-                             <SelectContent className="bg-slate-700 border-slate-600 text-white">
-                                 {isLoadingBooks ? <SelectItem value="-" disabled>Loading...</SelectItem> : null}
-                                 {!isLoadingBooks && availableBooks.length === 0 ? <SelectItem value="-" disabled>No documents found</SelectItem> : null}
-                                 {availableBooks.map(book => <SelectItem key={book} value={book}>{book.replace('uploads/', '').replace(/^[0-9]+_/, '')}</SelectItem>)}
-                             </SelectContent>
-                         </Select>
-                     </div>
+                <CardContent className="p-6">
+                    <Tabs value={activeClassroomTab} onValueChange={setActiveClassroomTab}>
+                        <TabsList className="grid grid-cols-3 mb-6">
+                            <TabsTrigger value="live">
+                                <Users className="h-4 w-4 mr-2" />
+                                Live Session
+                            </TabsTrigger>
+                            <TabsTrigger value="study">
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Study Groups
+                            </TabsTrigger>
+                            <TabsTrigger value="progress">
+                                <History className="h-4 w-4 mr-2" />
+                                My Progress
+                            </TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="live">
+                            <LiveClassroom isAiTeacherActive={isAiTeacherActive} />
+                        </TabsContent>
+                        
+                        <TabsContent value="study">
+                            <StudyGroup />
+                        </TabsContent>
+                        
+                        <TabsContent value="progress">
+                            <ProgressTracker />
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
             </Card>
 
-            {/* Navigation buttons for quizzes and progress */}
-            <div className="my-6 flex justify-center flex-wrap gap-4">
+            {/* Learning Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <Link href="/dashboard/student-hub/book-reader">
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6">
+                            <div className="flex flex-col items-center text-center">
+                                <BookOpen className="h-8 w-8 text-brand-orange mb-3" />
+                                <h3 className="font-semibold mb-1">Textbook Reader</h3>
+                                <p className="text-sm text-slate-600">Interactive reading experience</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
+                
                 <Link href="/dashboard/student-hub/daily-quizzes">
-                    <Button size="lg" className="bg-brand-orange text-white hover:bg-brand-orange/90">
-                        <Calendar className="mr-2 h-5 w-5" /> Daily Quizzes
-                    </Button>
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6">
+                            <div className="flex flex-col items-center text-center">
+                                <Calendar className="h-8 w-8 text-purple-600 mb-3" />
+                                <h3 className="font-semibold mb-1">Daily Quizzes</h3>
+                                <p className="text-sm text-slate-600">Test your knowledge</p>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </Link>
-                <Link href="/dashboard/student-hub/quizzes">
-                    <Button size="lg" className="bg-purple-600 text-white hover:bg-purple-700">
-                        <BookOpen className="mr-2 h-5 w-5" /> Browse Quizzes
-                    </Button>
+                
+                <Link href="/dashboard/student-hub/learning-path">
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6">
+                            <div className="flex flex-col items-center text-center">
+                                <GraduationCap className="h-8 w-8 text-blue-600 mb-3" />
+                                <h3 className="font-semibold mb-1">Learning Path</h3>
+                                <p className="text-sm text-slate-600">Personalized curriculum</p>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </Link>
+                
                 <Link href="/dashboard/student-hub/my-progress">
-                    <Button size="lg" variant="secondary" className="bg-brand-midblue hover:bg-brand-midblue/90 text-white">
-                        <History className="mr-2 h-5 w-5" /> My Progress
-                    </Button>
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6">
+                            <div className="flex flex-col items-center text-center">
+                                <History className="h-8 w-8 text-green-600 mb-3" />
+                                <h3 className="font-semibold mb-1">My Progress</h3>
+                                <p className="text-sm text-slate-600">Track your achievements</p>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </Link>
             </div>
 
-            {/* Content Display Area */}
+            {/* Book Collection */}
+            <div className="mb-8">
+                <BookCollection />
+            </div>
+
+            {/* AI Homework Help / Chat Section */}
             <Card className="border-slate-700 bg-slate-800/50 shadow-xl overflow-hidden">
                 <CardHeader className="bg-slate-800 border-b border-slate-700">
                     <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        <CardTitle className="text-white">
-                            {selectedSubject && selectedBook ? (
-                                <span>Content: <span className="text-brand-orange">{selectedSubject}</span> - {selectedBook.replace('uploads/', '').replace(/^[0-9]+_/, '')}</span>
-                            ) : (
-                                <span>Curriculum Content</span>
-                            )}
-                        </CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {isLoadingContent && (
-                        <div className="flex justify-center items-center py-16">
-                            <div className="text-center">
-                                <Loader2 className="h-10 w-10 animate-spin text-brand-orange mx-auto mb-4" />
-                                <p className="text-slate-400">Loading curriculum content...</p>
-                            </div>
-                        </div>
-                    )}
-                    {!isLoadingContent && errorLoadingContent && (
-                        <div className="p-6">
-                            <Alert variant="destructive" className="bg-red-900/50 border-red-800 text-white">
-                                <AlertTitle>Error Loading Content</AlertTitle>
-                                <AlertDescription>{errorLoadingContent}</AlertDescription>
-                            </Alert>
-                        </div>
-                    )}
-                    {!isLoadingContent && !errorLoadingContent && contentChunks.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <p className="text-slate-400 max-w-md">No content found for the selected criteria. Please select a subject and book from the filters above.</p>
-                        </div>
-                    )}
-                    {!isLoadingContent && !errorLoadingContent && contentChunks.length > 0 && (
-                        <ScrollArea className="h-[60vh] border-t border-slate-700">
-                            <div className="p-6">
-                                <div className="prose prose-sm sm:prose-base max-w-none prose-headings:text-brand-orange prose-headings:font-semibold prose-p:text-slate-300 prose-strong:text-white prose-li:text-slate-300 prose-a:text-brand-orange">
-                                    {contentChunks.map(chunk => (
-                                        <div key={chunk.id} className="mb-6 pb-6 border-b border-slate-700 last:border-b-0">
-                                            <div className="text-xs text-slate-500 mb-2 flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                Section {chunk.chunk_index}
-                                            </div>
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                {chunk.content}
-                                            </ReactMarkdown>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </ScrollArea>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* --- AI Homework Help / Chat Section --- */}
-            <Card className="mt-8 border-slate-700 bg-slate-800/50 shadow-xl overflow-hidden">
-                <CardHeader className="bg-slate-800 border-b border-slate-700">
-                    <div className="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
+                        <Brain className="h-5 w-5 text-brand-orange" />
                         <CardTitle className="text-white">AI Homework Helper</CardTitle>
                     </div>
-                    <CardDescription className="text-slate-400">Ask questions about the SBC, concepts, or get help with assignments.</CardDescription>
+                    <CardDescription className="text-slate-400">
+                        Get instant help with your studies from your AI teacher
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="p-4">
-                    <AiChatInterfaceWithThinking /> {/* Add the chat component with thinking here */}
+                    <AiChatInterfaceWithThinking />
                 </CardContent>
             </Card>
-            {/* --- End AI Chat Section --- */}
-
         </div>
     );
 }

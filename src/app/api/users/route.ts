@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Forward the request to the user service
-    const userServiceUrl = process.env.USER_SERVICE_URL || 'https://user-service-3j2j.onrender.com';
+    const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:3001';
     console.log(`[API Route] Forwarding request to ${userServiceUrl}/api/users`);
 
     // Fetch real data from the user service

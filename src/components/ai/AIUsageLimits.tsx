@@ -45,7 +45,7 @@ export function AIUsageLimits({ darkMode = false, compact = false }: AIUsageLimi
                 // Use relative URL in production, which will be handled by Vercel rewrites
                 const apiUrl = process.env.NODE_ENV === 'production'
                     ? '/api/ai/limits'
-                    : 'https://learnbridge-ai-service.onrender.com/api/ai/limits';
+                    : 'http://localhost:3004/api/ai/limits';
 
                 const response = await fetch(apiUrl, {
                     headers: {

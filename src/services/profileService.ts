@@ -14,7 +14,7 @@ export const profileService = {
             throw new Error('Authentication token is required');
         }
 
-        const response = await fetch('https://user-service-3j2j.onrender.com/api/users/me', {
+        const response = await fetch('http://localhost:3001/api/users/me', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -44,7 +44,7 @@ export const profileService = {
         const formData = new FormData();
         formData.append('profileImage', file);
 
-        const response = await fetch('https://user-service-3j2j.onrender.com/api/users/profile/image', {
+        const response = await fetch('http://localhost:3001/api/users/profile/image', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`

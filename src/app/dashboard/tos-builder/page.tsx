@@ -28,7 +28,6 @@ import { TeacherToolsUsageLimits } from "@/components/teacher/TeacherToolsUsageL
 // Validation Schema for ToS Inputs - Updated
 const tosSchema = z.object({
     subject: z.string().min(3, { message: "Subject is required." }),
-    book: z.string().min(1, { message: "Please select the specific book."}), // Changed from classLevel
     assessmentTitle: z.string().min(5, { message: "Assessment Title is required." }),
     coveredTopicsString: z.string().optional(), // Make optional
     objectiveWeight: z.number().min(0).max(100).default(50),
@@ -44,8 +43,6 @@ export default function TosBuilderPage() {
     const { toast } = useToast();
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedTos, setGeneratedTos] = useState<string | null>(null);
-    const [availableBooks, setAvailableBooks] = useState<string[]>([]);
-    const [isLoadingBooks, setIsLoadingBooks] = useState(true);
 
     // --- Get Auth State ---
     const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
@@ -101,47 +98,11 @@ export default function TosBuilderPage() {
         resolver: zodResolver(tosSchema), // Removed cast, should infer correctly
         defaultValues: {
             subject: "Art and Design Studio",
-            book: "", // Initialize book as empty, effect will set default
             assessmentTitle: "End of Semester Examination",
             coveredTopicsString: "",
             objectiveWeight: 50,
         },
     });
-
-     // --- Fetch Available Books Effect ---
-    useEffect(() => {
-        // Ensure form is available before calling methods on it
-        if (hasMounted && isAuthenticated && token && form) {
-            const fetchBooks = async () => {
-                setIsLoadingBooks(true);
-                try {
-                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', {
-                        headers: { 'Authorization': `Bearer ${token}` },
-                    });
-                    if (!response.ok) throw new Error('Failed to fetch book list');
-                    const data = await response.json();
-                    const books = data.documents || [];
-                    setAvailableBooks(books);
-                    console.log("Available books fetched:", books);
-                    // Set default book value only if list is not empty and current value is empty
-                    if (books.length > 0 && !form.getValues("book")) {
-                         form.setValue("book", books[0]);
-                    } else if (books.length === 0) {
-                         form.resetField("book");
-                    }
-                } catch (error) {
-                    console.error("Error fetching available books:", error);
-                    toast({ title: "Error", description: "Could not load available books.", variant: "destructive" });
-                    setAvailableBooks([]);
-                } finally {
-                    setIsLoadingBooks(false);
-                }
-            };
-            fetchBooks();
-        } else if (hasMounted && !isLoadingAuth && !isAuthenticated) {
-             setIsLoadingBooks(false);
-        }
-    }, [hasMounted, isAuthenticated, token, toast, form]); // Keep form dependency
 
 
     const objectiveWeightValue = form.watch("objectiveWeight");
@@ -161,7 +122,6 @@ export default function TosBuilderPage() {
 
         const payload = {
             subject: values.subject,
-            book: values.book,
             assessmentTitle: values.assessmentTitle,
             coveredTopics: coveredTopics,
             objectiveWeight: values.objectiveWeight,
@@ -385,39 +345,6 @@ export default function TosBuilderPage() {
                                     <FormItem> <FormLabel>Subject *</FormLabel> <FormControl><Input placeholder="e.g., Art and Design Studio" {...field} disabled={isGenerating} /></FormControl> <FormMessage /> </FormItem>
                                 )} />
 
-                                {/* Book Selection (Dynamic) */}
-                                <FormField control={form.control} name="book" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Book / Document *</FormLabel>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value || ""}
-                                            disabled={isGenerating || isLoadingBooks || availableBooks.length === 0}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={isLoadingBooks ? "Loading books..." : "Select processed book/document"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent className="bg-white border shadow-md z-50">
-                                                {isLoadingBooks ? (
-                                                     <SelectItem value="loading" disabled>Loading...</SelectItem>
-                                                ) : availableBooks.length > 0 ? (
-                                                    availableBooks.map((bookName) => (
-                                                        <SelectItem key={bookName} value={bookName}>
-                                                            {bookName.replace('uploads/', '').replace(/^[0-9]+_/, '')}
-                                                        </SelectItem>
-                                                    ))
-                                                ) : (
-                                                    <SelectItem value="-" disabled>No processed documents found</SelectItem>
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormDescription>Select the document the assessment is based on.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-
                                 <FormField control={form.control} name="assessmentTitle" render={({ field }) => (
                                     <FormItem> <FormLabel>Assessment Title *</FormLabel> <FormControl><Input placeholder="e.g., End of Semester Examination" {...field} disabled={isGenerating} /></FormControl> <FormMessage /> </FormItem>
                                 )} />
@@ -427,7 +354,7 @@ export default function TosBuilderPage() {
                                         <FormLabel>Specific Topics/Strands Covered (Optional)</FormLabel>
                                         <FormControl>
                                             <Textarea
-                                                placeholder="Enter specific topics one per line (leave blank to use all topics from the selected book)..."
+                                                placeholder="Enter specific topics one per line (leave blank for AI to analyze and determine topics)..."
                                                 {...field}
                                                 rows={4}
                                                 disabled={isGenerating}
@@ -461,7 +388,7 @@ export default function TosBuilderPage() {
                                      </FormItem>
                                  )} />
 
-                                <Button type="submit" className="w-full bg-brand-orange hover:bg-brand-orange/90" disabled={isGenerating || isLoadingBooks}>
+                                <Button type="submit" className="w-full bg-brand-orange hover:bg-brand-orange/90" disabled={isGenerating}>
                                     {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     {isGenerating ? 'Generating ToS...' : 'Generate Table of Specs'}
                                 </Button>

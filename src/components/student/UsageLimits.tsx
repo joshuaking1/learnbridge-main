@@ -24,34 +24,34 @@ interface UsageLimitsData {
 export function UsageLimits() {
     const { token, user } = useAuthStore();
     const { toast } = useToast();
-
+    
     const [limits, setLimits] = useState<UsageLimitsData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    
     useEffect(() => {
         const fetchUsageLimits = async () => {
             if (!token) return;
-
+            
             setIsLoading(true);
             setError(null);
-
+            
             try {
                 // Use relative URL in production, which will be handled by Vercel rewrites
-                const apiUrl = process.env.NODE_ENV === 'production'
+                const apiUrl = process.env.NODE_ENV === 'production' 
                     ? '/api/daily-quizzes/limits'
-                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes/limits';
-
+                    : 'http://localhost:3006/api/daily-quizzes/limits';
+                
                 const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
+                
                 if (!response.ok) {
                     throw new Error('Failed to fetch usage limits');
                 }
-
+                
                 const data = await response.json();
                 setLimits(data);
             } catch (error) {
@@ -66,10 +66,10 @@ export function UsageLimits() {
                 setIsLoading(false);
             }
         };
-
+        
         fetchUsageLimits();
     }, [token, toast]);
-
+    
     // Helper function to format service name for display
     const formatServiceName = (serviceName: string): string => {
         return serviceName
@@ -77,7 +77,7 @@ export function UsageLimits() {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     };
-
+    
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-24">
@@ -86,7 +86,7 @@ export function UsageLimits() {
             </div>
         );
     }
-
+    
     if (error) {
         return (
             <Alert variant="destructive" className="mb-4">
@@ -96,11 +96,11 @@ export function UsageLimits() {
             </Alert>
         );
     }
-
+    
     if (!limits) {
         return null;
     }
-
+    
     // If user is admin, don't show limits
     if (limits.isAdmin || user?.role === 'admin') {
         return (
@@ -116,7 +116,7 @@ export function UsageLimits() {
             </Card>
         );
     }
-
+    
     return (
         <Card className="mb-4">
             <CardHeader className="pb-2">
@@ -135,14 +135,14 @@ export function UsageLimits() {
                                     {service.remaining} / {service.limit} remaining
                                 </span>
                             </div>
-                            <Progress
-                                value={(service.currentUsage / service.limit) * 100}
+                            <Progress 
+                                value={(service.currentUsage / service.limit) * 100} 
                                 className={service.remaining === 0 ? "bg-red-100" : "bg-gray-100"}
                                 indicatorClassName={service.remaining === 0 ? "bg-red-500" : "bg-brand-orange"}
                             />
                         </div>
                     ))}
-
+                    
                     <p className="text-xs text-gray-500 mt-2">
                         Limits reset at midnight in your local timezone.
                     </p>

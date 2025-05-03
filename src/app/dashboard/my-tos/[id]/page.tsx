@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -61,7 +61,7 @@ export default function ViewTosPage() {
             if (hasMounted && isAuthenticated && token && tosId && typeof tosId === 'string') {
                 setIsLoadingTos(true); setErrorLoading(null);
                 try {
-                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
+                    const response = await fetch(`http://localhost:3005/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (response.status === 404) throw new Error('ToS not found or permission denied.');
@@ -83,7 +83,7 @@ export default function ViewTosPage() {
         setIsSavingEdit(true);
         const payload = { title: editedTitle, tosContent: editedContent }; // Only update title and content
         try {
-            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
+            const response = await fetch(`http://localhost:3005/api/teacher-tools/tos/${tosId}`, { // Use ToS endpoint
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),

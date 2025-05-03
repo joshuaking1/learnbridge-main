@@ -1,20 +1,19 @@
-// frontend/src/app/login/page.tsx
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from '@/stores/useAuthStore';
+import { ButtonWithLoading } from "@/components/ui/button-with-loading";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,17 +25,29 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { TwoFactorVerify } from '@/components/auth/TwoFactorVerify';
+import { authApi } from '@/lib/auth-api';
+import { LoginResponse, TwoFactorVerifyResponse } from '@/types/shared';
+import { normalizeUser, handleAuthError } from '@/lib/auth-helpers';
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address. check email address." }),
-  password: z.string().min(1, { message: "Password is required." }), // Basic check
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long." })
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
+    .regex(/[0-9]/, { message: "Password must contain at least one number." })
+    .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
 });
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { setUserAndToken } = useAuthStore()
+  const { setUserAndToken } = useAuthStore();
+  const [twoFactorData, setTwoFactorData] = useState<{
+    tempToken: string;
+    email: string;
+  } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,53 +59,56 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log("Login Attempt:", values);
 
     try {
-         const response = await fetch('https://learnbridge-auth-service.onrender.com/api/auth/login', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-           },
-           body: JSON.stringify(values),
-         });
-         
-         const data = await response.json();
+      const response = await authApi.post<LoginResponse>('/api/auth/login', values);
 
-         if (!response.ok) {
-           console.error("Login failed:", data);
-           toast({ 
-             title: "Login Failed", 
-             description: data.error || "Invalid credentials. Please try again.", 
-             variant: "destructive" 
-           });
-         } else {
-             console.log("Login successful:", data);
-             toast({ title: "Login Successful!", description: "Welcome back!" });
-
-             // --- Use the store action ---
-             if (data.user && data.token) {
-                setUserAndToken(data.user, data.token); // <-- Update global state
-                console.log("Auth state updated, redirecting to dashboard");
-                router.push('/dashboard');
-             } else {
-                 console.error("Login response missing user or token:", data);
-                 // Handle this potential error case
-                 toast({ title: "Login Error", description: "Received invalid data from server.", variant: "destructive" });
-                 setIsLoading(false);
-                 return;
-             }
-         }
+      if (response.requires2FA && response.tempToken) {
+        setTwoFactorData({
+          tempToken: response.tempToken,
+          email: response.user?.email || values.email,
+        });
+      } else if (response.token && response.user) {
+        const normalizedUser = normalizeUser(response.user);
+        setUserAndToken(normalizedUser, response.token);
+        toast({ 
+          title: "Login Successful!", 
+          description: "Welcome back!" 
+        });
+        router.push('/dashboard');
+      }
     } catch (error) {
-      console.error("Network or unexpected error:", error);
-      toast({ 
-        title: "Error", 
-        description: "Could not connect to the server. Please check your connection.", 
-        variant: "destructive" 
+      toast({
+        title: "Login Failed",
+        description: handleAuthError(error),
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
+  }
+
+  const handleTwoFactorSuccess = (verifyResponse: TwoFactorVerifyResponse) => {
+    const normalizedUser = normalizeUser(verifyResponse.user);
+    setUserAndToken(normalizedUser, verifyResponse.token);
+    toast({ 
+      title: "Success", 
+      description: "Successfully verified and logged in" 
+    });
+    router.push('/dashboard');
+  };
+
+  if (twoFactorData) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:p-4 bg-gradient-to-br from-brand-darkblue to-brand-midblue">
+        <TwoFactorVerify
+          tempToken={twoFactorData.tempToken}
+          email={twoFactorData.email}
+          onSuccess={handleTwoFactorSuccess}
+          onCancel={() => setTwoFactorData(null)}
+        />
+      </div>
+    );
   }
 
   return (
@@ -115,15 +129,14 @@ export default function LoginPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="mb-1.5 text-sm font-medium text-gray-700">Email</div>
                       <FormControl>
                         <Input 
-                          placeholder="name@example.com" 
+                          placeholder="Enter your email" 
+                          type="email" 
                           {...field} 
-                          className="bg-white border-gray-300 focus:border-brand-orange focus:ring-brand-orange/20 h-10 sm:h-11 text-base"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 text-xs sm:text-sm mt-1" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -132,40 +145,37 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="mb-1.5 text-sm font-medium text-gray-700">Password</div>
                       <FormControl>
                         <Input 
-                          type="password" 
                           placeholder="Enter your password" 
-                          {...field}
-                          className="bg-white border-gray-300 focus:border-brand-orange focus:ring-brand-orange/20 h-10 sm:h-11 text-base"
+                          type="password" 
+                          {...field} 
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 text-xs sm:text-sm mt-1" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button 
-                  type="submit" 
-                  className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-medium h-10 sm:h-11 text-base mt-2" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing in..." : "Sign in"}
-                </Button>
+                <div className="space-y-4">
+                  <ButtonWithLoading
+                    type="submit"
+                    className="w-full"
+                    loading={isLoading}
+                  >
+                    Log In
+                  </ButtonWithLoading>
+                  
+                  <div className="text-center">
+                    <Button variant="link" asChild className="text-sm text-gray-600 hover:text-gray-900">
+                      <Link href="/forgot-password">
+                        Forgot your password?
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2 p-4 sm:p-6">
-            <div className="text-xs sm:text-sm text-center text-gray-600">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-brand-orange hover:underline font-medium">
-                Sign up
-              </Link>
-            </div>
-            <Link href="/" className="text-xs sm:text-sm text-center text-gray-500 hover:text-gray-700 hover:underline">
-              Back to home
-            </Link>
-          </CardFooter>
         </Card>
       </div>
     </div>

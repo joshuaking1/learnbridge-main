@@ -12,6 +12,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react"; // For collapse/expand
 
 // Import icons from lucide-react
 import {
+    BookOpen
+} from "lucide-react";
+
+// Import icons from lucide-react
+import {
     LayoutDashboard, // Dashboard icon
     BookOpenCheck, // My Plans/Assessments
     FileText,      // Lesson Planner
@@ -26,7 +31,12 @@ import {
     Calendar,      // Calendar icon for Daily Quizzes
     GraduationCap, // Learning Hub icon
     Users,         // User Management icon
-    BarChart3      // Usage Limits icon
+    BarChart3,     // Usage Limits icon
+    CheckSquare
+} from "lucide-react";
+
+import {
+    MessageSquare   // Discussion icon
 } from "lucide-react";
 
 // Other icons that might be used later
@@ -77,7 +87,17 @@ export function Sidebar({ collapseEventName }: SidebarProps) {
         // --- Student Tools ---
         { href: "/dashboard/student-hub", label: "Learning Hub", icon: GraduationCap, roles: ['student'] },
         { href: "/dashboard/student-hub/daily-quizzes", label: "Daily Quizzes", icon: Calendar, roles: ['student'] },
-        { href: "/dashboard/student-hub/quizzes", label: "All Quizzes", icon: BookOpenCheck, roles: ['student'] },
+        { href: "/dashboard/student-hub/learning-path", label: "Learning Paths", icon: GraduationCap, roles: ['student'] },
+        { href: "/dashboard/student-hub/quizzes", label: "Quizzes", icon: CheckSquare, roles: ['student'] },
+        { href: "/dashboard/student-hub/my-progress", label: "My Progress", icon: BarChart3, roles: ['student'] },
+        { href: "/dashboard/student-hub/discussion", label: "Discussion", icon: MessageSquare, roles: ['student'] }, // Added Discussion link
+        // Teacher Links
+        { href: "/dashboard/lesson-planner", label: "Lesson Planner", icon: BookOpen, roles: ['teacher', 'admin'] },
+        { href: "/dashboard/assessment-creator", label: "Assessment Creator", icon: ClipboardCheck, roles: ['teacher', 'admin'] },
+        { href: "/dashboard/tos-builder", label: "ToS Builder", icon: ListChecks, roles: ['teacher', 'admin'] },
+        { href: "/dashboard/rubric-generator", label: "Rubric Generator", icon: Scaling, roles: ['teacher', 'admin'] },
+        { href: "/dashboard/my-lessons", label: "My Lesson Plans", icon: BookOpenCheck, roles: ['teacher', 'admin'] },
+        { href: "/dashboard/my-assessments", label: "My Assessments", icon: BookOpenCheck, roles: ['teacher', 'admin'] }, // Add My Assessments link
         // --- Admin Tools ---
         { href: "/dashboard/admin/users", label: "User Management", icon: Users, roles: ['admin'] },
         { href: "/dashboard/admin/daily-quizzes", label: "Manage Daily Quizzes", icon: Calendar, roles: ['admin'] },

@@ -19,7 +19,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { UsageLimitPopup } from '@/components/ui/usage-limit-popup'; // Import the popup
 
 // Add declaration for lucide-react to fix TypeScript error
 declare module 'lucide-react';
@@ -44,17 +43,16 @@ export default function DashboardPage() {
     const router = useRouter();
     const { toast } = useToast();
 
-    // --- State to prevent hydration mismatch --- 
+    // --- State to prevent hydration mismatch ---
     const [hasMounted, setHasMounted] = useState(false);
     const [greeting, setGreeting] = useState("Welcome");
     const [userName, setUserName] = useState("User");
-    const [showUsagePopup, setShowUsagePopup] = useState(false); // State for popup visibility
 
     // --- Get state and actions from the store ---
     // Only access auth state after component has mounted
     const { user, isAuthenticated, isLoading: isLoadingAuth, clearAuth } = useAuthStore();
 
-    // --- Effect to set hasMounted on client and show popup ---
+    // --- Effect to set hasMounted on client ---
     useEffect(() => {
         setHasMounted(true);
         console.log("Component mounted, auth state:", {
@@ -63,16 +61,6 @@ export default function DashboardPage() {
             hasUser: !!user,
             user: user
         });
-
-        // Show popup only once after mount and if authenticated
-        if (!isLoadingAuth && isAuthenticated) {
-            // Use a flag in localStorage or sessionStorage to show only once per session/login
-            const popupShown = sessionStorage.getItem('usagePopupShown');
-            if (!popupShown) {
-                setShowUsagePopup(true);
-                sessionStorage.setItem('usagePopupShown', 'true');
-            }
-        }
 
         // Set greeting based on time of day
         const hour = new Date().getHours();
@@ -144,12 +132,6 @@ export default function DashboardPage() {
     // --- Render dashboard ---
     return (
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-2 sm:p-4">
-            {/* Render the popup */} 
-            <UsageLimitPopup 
-                isOpen={showUsagePopup} 
-                onClose={() => setShowUsagePopup(false)} 
-            />
-
             <div className="container mx-auto">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
                     <h1 className="text-2xl sm:text-3xl font-arvo font-bold text-white">

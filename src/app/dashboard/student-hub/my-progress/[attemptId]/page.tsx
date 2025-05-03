@@ -80,7 +80,7 @@ export default function QuizReviewPage() {
                     // Use relative URL in production, which will be handled by Vercel rewrites
                     const apiBaseUrl = process.env.NODE_ENV === 'production'
                         ? '/api/quizzes'
-                        : 'https://learnbridgedu.onrender.com/api/quizzes';
+                        : 'http://localhost:3006/api/quizzes';
 
                     const response = await fetch(`${apiBaseUrl}/attempts/${attemptId}/review`, { // Use new review endpoint
                         headers: { 'Authorization': `Bearer ${token}` },
