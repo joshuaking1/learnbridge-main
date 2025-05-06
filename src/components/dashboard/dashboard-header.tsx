@@ -9,6 +9,7 @@ interface DashboardHeaderProps {
   icon?: LucideIcon;
   children?: React.ReactNode;
   className?: string;
+  [key: string]: any; // Allow for spreading additional props
 }
 
 export function DashboardHeader({
@@ -25,9 +26,7 @@ export function DashboardHeader({
         {Icon && <Icon className="h-6 w-6 text-brand-orange" />}
         <h1 className="text-2xl font-bold text-gray-800">{heading}</h1>
       </div>
-      {description && (
-        <p className="text-gray-600">{description}</p>
-      )}
+      {description && <p className="text-gray-600">{description}</p>}
       {children}
     </div>
   );

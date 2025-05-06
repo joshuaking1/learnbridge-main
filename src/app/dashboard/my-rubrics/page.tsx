@@ -100,14 +100,11 @@ export default function MyRubricsPage() {
                 const errorMsg = `Failed to delete rubric (Status: ${response.status})`;
                 try { const errorData = await response.json(); errorMsg = errorData.error || errorMsg; } catch(e) {}
                 throw new Error(errorMsg);
-            try {
-              } finally {
-                setErrorLoading(null);
+            }
             // Update state
-            setRubrics(prev => prev.filter(r => r.id!== rubricId));
+            setRubrics(prev => prev.filter(r => r.id !== rubricId));
             toast({ title: "Success", description: "Rubric deleted successfully." });
         } catch (error: any) {
-          console.error("Error deleting rubric:", error);
             console.error("Error deleting rubric:", error);
             toast({ title: "Delete Error", description: error.message || "Could not delete rubric.", variant: "destructive" });
         } finally {
@@ -122,10 +119,10 @@ export default function MyRubricsPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-brand-darkblue" />
             </div>
         );
-    } finally {
-      setIsLoadingRubrics(false);
 
-    if (!isAuthenticated ||!user || user.role!== 'teacher') {
+    }
+
+    if (!isAuthenticated || !user || user.role !== 'teacher') {
         return (
             <div className="min-h-screen bg-slate-100 p-4 md:p-8">
                 <Alert variant="destructive">
@@ -137,8 +134,6 @@ export default function MyRubricsPage() {
             </div>
         );
     }
-    const handleDeleteRubric = async (rubricId: number) => {
-
     return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8">
             <header className="mb-6 flex justify-between items-center">
@@ -147,7 +142,6 @@ export default function MyRubricsPage() {
                     <nav className="text-sm text-gray-500">
                         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
                         {' / '}
-                        const deletingId = deletingId;
                         <span>My Rubrics</span>
                     </nav>
                 </div>
@@ -163,7 +157,6 @@ export default function MyRubricsPage() {
             {/* Error State */}
             {!isLoadingRubrics && errorLoading && (
                 <Alert variant="destructive" className="mt-6">
-                const e = e;
                     <AlertTitle>Error Loading Rubrics</AlertTitle>
                     <AlertDescription>{errorLoading}</AlertDescription>
                 </Alert>
@@ -175,7 +168,6 @@ export default function MyRubricsPage() {
                     <CardContent>
                         <CardDescription className="mb-4">Generate a rubric using the AI Rubric Generator!</CardDescription>
                         <Link href="/dashboard/rubric-generator">
-                        import Link from 'next/link';
                             <Button>Go to Rubric Generator</Button>
                         </Link>
                     </CardContent>
