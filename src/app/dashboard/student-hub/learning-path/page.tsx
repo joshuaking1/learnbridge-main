@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from "@/hooks/use-toast";
@@ -29,18 +30,7 @@ import { Recommendations } from "@/components/learning-path/Recommendations";
 import { learningPathService } from "@/services/learningPathService";
 import { LearningPath, Achievement, ProgressSummary as ProgressSummaryType, Recommendation } from "@/types/learning-path";
 
-// Type declarations for components
-type DashboardShellProps = {
-  children: React.ReactNode;
-  className?: string;
-};
-
-type DashboardHeaderProps = {
-  heading: string;
-  description: string;
-  icon: React.ElementType;
-  children?: React.ReactNode;
-};
+// Note: We're using the imported component types directly rather than redefining them here
 
 export default function LearningPathPage() {
   const router = useRouter();
