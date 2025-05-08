@@ -87,7 +87,7 @@ export function Sidebar({ collapseEventName }: SidebarProps) {
         // --- Student Tools ---
         { href: "/dashboard/student-hub", label: "Learning Hub", icon: GraduationCap, roles: ['student'] },
         { href: "/dashboard/student-hub/daily-quizzes", label: "Daily Quizzes", icon: Calendar, roles: ['student'] },
-        { href: "/dashboard/student-hub/learning-path", label: "Learning Paths", icon: GraduationCap, roles: ['student'] },
+        
         { href: "/dashboard/student-hub/quizzes", label: "Quizzes", icon: CheckSquare, roles: ['student'] },
         { href: "/dashboard/student-hub/my-progress", label: "My Progress", icon: BarChart3, roles: ['student'] },
         { href: "/dashboard/student-hub/discussion", label: "Discussion", icon: MessageSquare, roles: ['student'] }, // Added Discussion link

@@ -257,7 +257,7 @@ export default function StudentHubPage() {
                     </Card>
                 </Link>
                 
-                <Link href="/dashboard/student-hub/learning-path">
+                
                     <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                         <CardContent className="p-6">
                             <div className="flex flex-col items-center text-center">
