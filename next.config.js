@@ -1,15 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: true,
   },
-  output: 'standalone',
-  distDir: '.next',
+  output: "standalone",
+  distDir: ".next",
   poweredByHeader: false,
-  reactStrictMode: false
+  reactStrictMode: false,
+  images: {
+    domains: ["img.clerk.com", "images.clerk.dev"],
+  },
 };
 
 module.exports = nextConfig;
