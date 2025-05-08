@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from "@/hooks/use-toast";
-import { DashboardShell } from "../../../components/dashboard/dashboard-shell";
+
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -213,7 +213,7 @@ export default function LearningPathPage() {
   }
 
   return (
-    <DashboardShell>
+    <>
       <DashboardHeader
         heading="Learning Path"
         description="Your personalized learning journey"
@@ -230,16 +230,26 @@ export default function LearningPathPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-brand-orange" />
               </CardContent>
             </Card>
-          ) : progressSummary ? (
-            <ProgressSummary summary={progressSummary} />
           ) : (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <BarChart className="h-12 w-12 mx-auto text-slate-300 mb-3" />
-                <h3 className="text-lg font-medium text-slate-700">No Progress Data</h3>
-                <p className="text-slate-500 mt-1">
-                  Start a learning path to begin tracking your progress.
-                </p>
+            <ProgressSummary progress={progressSummary} />
+          )}
+
+          {/* Learning Path Cards */}
+          <LearningPathCard learningPath={learningPath} />
+
+          {/* Achievements */}
+          <AchievementCard achievements={achievements} />
+        </div>
+
+        {/* Recommendations (1/3 width) */}
+        <div>
+          <Recommendations recommendations={recommendations} />
+        </div>
+      </div>
+    </>
+  );
+}
+
               </CardContent>
             </Card>
           ) : null} {/* Render null if not loading and no summary */}
