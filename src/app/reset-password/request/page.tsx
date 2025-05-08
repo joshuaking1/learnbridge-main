@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordRequestPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-brand-darkblue to-brand-midblue">
       <div className="mb-8">
@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h1 className="text-2xl font-bold text-center mb-4">Reset Your Password</h1>
           <p className="text-gray-600 mb-6">
-            Enter your email address below and we'll send you a link to reset your password.
+            Enter your email address below and we&#39;ll send you a link to reset your password.
           </p>
           
           <SignIn 
@@ -34,7 +34,7 @@ export default function ResetPasswordPage() {
               }
             }}
             routing="path"
-            path="/reset-password"
+            path="/reset-password/request"
           />
           
           <div className="mt-6 text-center">
@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
         <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded shadow-md">
           <h3 className="font-bold">Need Help?</h3>
           <p className="text-sm">
-            If you're having trouble accessing your account, please contact our support team at{" "}
+            If you&#39;re having trouble accessing your account, please contact our support team at{" "}
             <a href="mailto:support@learnbridgedu.com" className="underline">
               support@learnbridgedu.com
             </a>
