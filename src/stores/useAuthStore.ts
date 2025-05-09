@@ -45,24 +45,24 @@ export const useAuthStore = create<AuthState>()(
             // Action to set user and token (e.g., after login)
             setUserAndToken: (user, token) => {
                 set({ user, token, isAuthenticated: true, isLoading: false });
-                console.log('Auth state updated:', { user, token: token ? '***' : null }); // Log state update
+                // Auth state updated
             },
 
             // Action to update user data only (e.g., after profile update)
             setUser: (user) => {
                 set({ user });
-                console.log('User data updated:', { user }); // Log state update
+                // User data updated
             },
 
             // Action to clear user and token (e.g., after logout or auth error)
             clearAuth: () => {
                 set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-                console.log('Auth state cleared.');
+                // Auth state cleared
             },
 
             // Action to manually control loading state if needed
             setLoading: (loading) => {
-                console.log('Setting loading state to:', loading);
+                // Setting loading state
                 set({ isLoading: loading });
             },
 
@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthState>()(
                     if (data.token) {
                         // Update the token in the store
                         set({ token: data.token, isAuthenticated: true });
-                        console.log('Token refreshed successfully');
+                        // Token refreshed successfully
                         return true;
                     } else {
                         console.error('Token refresh response missing token');
@@ -120,7 +120,7 @@ export const useAuthStore = create<AuthState>()(
             partialize: (state) => ({ user: state.user, token: state.token }),
             // Rehydrate logic (runs once on load)
             onRehydrateStorage: () => {
-                console.log('Rehydrating auth state from storage...');
+                // Rehydrating auth state from storage
                 return (state, error) => {
                     if (error) {
                         console.error('Failed to rehydrate auth state:', error);
@@ -129,7 +129,7 @@ export const useAuthStore = create<AuthState>()(
                         // If token and user exist in storage, mark as authenticated
                         const isAuthenticated = !!state.token && !!state.user;
                         state.isAuthenticated = isAuthenticated;
-                        console.log('Rehydration complete. Authenticated:', isAuthenticated);
+                        // Rehydration complete
                     }
                     // Always finish initial loading after rehydration attempt
                     state?.setLoading(false);
@@ -145,7 +145,7 @@ if (typeof window !== 'undefined') {
     setTimeout(() => {
         const currentState = useAuthStore.getState();
         if (currentState.isLoading) {
-            console.log('Forcing loading state to false after timeout');
+            // Forcing loading state to false after timeout
             currentState.setLoading(false);
         }
     }, 2000); // 2 second timeout

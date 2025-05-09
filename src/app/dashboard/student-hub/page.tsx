@@ -97,7 +97,7 @@ export default function StudentHubPage() {
                     // topic: selectedTopic, // Add topic filter later if needed
                 });
 
-                console.log(`Fetching content for: ${selectedSubject} - ${selectedBook}`);
+                // Removed console log for security
                 try {
                     const response = await fetch(`http://localhost:3004/api/ai/sbc-content?${params.toString()}`, {
                         headers: { 'Authorization': `Bearer ${token}` },

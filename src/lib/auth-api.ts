@@ -13,9 +13,9 @@ class AuthAPI {
     }
 
     private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-        console.log(`[AuthAPI] Making request to endpoint: ${endpoint}`);
+        // Security: Removed detailed API request logging
+        
         const token = localStorage.getItem(config.auth.tokenKey);
-        console.log(`[AuthAPI] Token present: ${!!token}`);
         
         const headers = {
             'Content-Type': 'application/json',
@@ -24,9 +24,6 @@ class AuthAPI {
         };
         
         const url = `${this.baseUrl}${endpoint}`;
-        console.log(`[AuthAPI] Full request URL: ${url}`);
-        console.log(`[AuthAPI] Request method: ${options.method || 'GET'}`);
-        console.log(`[AuthAPI] Request headers:`, headers);
 
         try {
             const response = await fetch(url, {
@@ -34,10 +31,9 @@ class AuthAPI {
                 headers,
             });
             
-            console.log(`[AuthAPI] Response status: ${response.status}`);
-            
+            // Security: Removed response status logging
+
             const data = await response.json();
-            console.log(`[AuthAPI] Response data:`, data);
 
             if (!response.ok) {
                 console.error(`[AuthAPI] Request failed with status ${response.status}:`, data);
