@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { getAuth } from '@clerk/nextjs/server';
 import * as clerkApi from '@/lib/clerk-api';
 
 export async function GET(req: NextRequest) {
   try {
     // Check if the user is authenticated and has admin role
-    const { userId } = auth();
+    const auth = getAuth();
+    const userId = auth.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -48,7 +49,8 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     // Check if the user is authenticated and has admin role
-    const { userId } = auth();
+    const auth = getAuth();
+    const userId = auth.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
