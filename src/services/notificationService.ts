@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Notification } from '@/types/notification';
 
-const API_URL = process.env.NEXT_PUBLIC_NOTIFICATION_SERVICE_URL || 'http://localhost:3008';
+const API_URL = process.env.NEXT_PUBLIC_NOTIFICATION_SERVICE_URL || 'https://user-service-3j2j.onrender.com';
 
 const getAuthHeaders = (token: string) => ({
   headers: {

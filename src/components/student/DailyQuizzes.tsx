@@ -41,7 +41,7 @@ export function DailyQuizzes() {
                 // or use localhost in development
                 const apiUrl = process.env.NODE_ENV === 'production'
                     ? '/api/quizzes'
-                    : 'http://localhost:3006/api/daily-quizzes';
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes';
 
                 const response = await fetch(apiUrl, {
                     headers: {

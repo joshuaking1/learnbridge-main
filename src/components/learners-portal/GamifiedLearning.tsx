@@ -143,7 +143,7 @@ export function GamifiedLearning() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/gamification/profile", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/gamification/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -188,7 +188,7 @@ export function GamifiedLearning() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/gamification/leaderboard", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/gamification/leaderboard", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -269,7 +269,7 @@ export function GamifiedLearning() {
 
       // Uncomment this when the backend is ready
       /*
-      let url = "http://localhost:3007/api/learners-portal/gamification/missions";
+      let url = "https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/gamification/missions";
 
       // Add query parameters if subject or grade is selected
       const params = new URLSearchParams();
@@ -317,7 +317,7 @@ export function GamifiedLearning() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/gamification/daily-spin", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/gamification/daily-spin", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

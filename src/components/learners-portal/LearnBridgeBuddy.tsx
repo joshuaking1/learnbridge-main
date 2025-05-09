@@ -95,7 +95,7 @@ export function LearnBridgeBuddy() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/ai-assistant/motivate", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/ai-assistant/motivate", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -177,7 +177,7 @@ export function LearnBridgeBuddy() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/ai-assistant/ask", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/ai-assistant/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

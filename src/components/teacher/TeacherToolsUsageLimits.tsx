@@ -40,7 +40,7 @@ export function TeacherToolsUsageLimits() {
                 // Use relative URL in production, which will be handled by Vercel rewrites
                 const apiUrl = process.env.NODE_ENV === 'production' 
                     ? '/api/teacher-tools/limits'
-                    : 'http://localhost:3005/api/teacher-tools/limits';
+                    : 'https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/limits';
                 
                 const response = await fetch(apiUrl, {
                     headers: {

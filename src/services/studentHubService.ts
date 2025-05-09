@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { getAuthToken } from '@/lib/auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { USER_SERVICE_URL } from '@/config/serviceUrls';
+
+const API_BASE_URL = USER_SERVICE_URL;
 
 // Types for student hub data
 export interface LearningProgress {

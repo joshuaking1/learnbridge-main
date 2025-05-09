@@ -407,7 +407,7 @@ function StudentContentViewer() {
       const token = await getToken();
 
       const response = await fetch(
-        `http://localhost:3003/api/content/student-material?${params.toString()}`,
+        `https://learnbridge-ai-service.onrender.com/api/content/student-material?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

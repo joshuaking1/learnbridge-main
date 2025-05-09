@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getAuthToken } from '@/lib/auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://user-service-3j2j.onrender.com';
 
 // Types for study group data
 export interface StudyGroupMember {

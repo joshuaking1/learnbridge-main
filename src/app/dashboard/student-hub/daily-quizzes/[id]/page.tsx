@@ -57,7 +57,7 @@ export default function DailyQuizPage() {
                 // Use relative URL in production, which will be handled by Vercel rewrites
                 const apiBaseUrl = process.env.NODE_ENV === 'production'
                     ? '/api/daily-quizzes'
-                    : 'http://localhost:3006/api/daily-quizzes';
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes';
 
                 const metadataResponse = await fetch(`${apiBaseUrl}/${quizId}`, {
                     headers: {
@@ -156,7 +156,7 @@ export default function DailyQuizPage() {
             // Use relative URL in production, which will be handled by Vercel rewrites
             const apiBaseUrl = process.env.NODE_ENV === 'production'
                 ? '/api/daily-quizzes'
-                : 'http://localhost:3006/api/daily-quizzes';
+                : 'https://learnbridgedu.onrender.com/api/daily-quizzes';
 
             const response = await fetch(`${apiBaseUrl}/${quizId}/attempt`, {
                 method: 'POST',

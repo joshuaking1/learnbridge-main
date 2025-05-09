@@ -123,7 +123,7 @@ export default function UsageLimitsPage() {
             try {
                 const aiUrl = process.env.NODE_ENV === 'production'
                     ? '/api/ai/limits'
-                    : 'http://localhost:3004/api/ai/limits';
+                    : 'https://learnbridge-ai-service.onrender.com/api/ai/limits';
 
                 const aiResponse = await fetch(aiUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -146,7 +146,7 @@ export default function UsageLimitsPage() {
             try {
                 const quizUrl = process.env.NODE_ENV === 'production'
                     ? '/api/daily-quizzes/limits'
-                    : 'http://localhost:3006/api/daily-quizzes/limits';
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes/limits';
 
                 // Create a mock quiz limits object since the service is not running
                 const mockQuizLimits = {
@@ -191,7 +191,7 @@ export default function UsageLimitsPage() {
             try {
                 const teacherToolsUrl = process.env.NODE_ENV === 'production'
                     ? '/api/teacher-tools/limits'
-                    : 'http://localhost:3005/api/teacher-tools/limits';
+                    : 'https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/limits';
 
                 const teacherToolsResponse = await fetch(teacherToolsUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }

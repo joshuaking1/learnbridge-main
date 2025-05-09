@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // AI Service URL - would be better in an environment variable
-const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:3004';
+const AI_SERVICE_URL = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'https://learnbridge-ai-service.onrender.com';
 
 export async function POST(request: NextRequest) {
   try {

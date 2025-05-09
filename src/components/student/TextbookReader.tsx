@@ -118,7 +118,7 @@ export function TextbookReader({ contentChunks, bookTitle, subject, isLoading = 
       }
 
       // Call the AI API
-      const response = await fetch('http://localhost:3004/api/ai/ask', {
+      const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

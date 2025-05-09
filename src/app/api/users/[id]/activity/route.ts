@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Forward the request to the user service
-    const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:3001';
+    const userServiceUrl = process.env.USER_SERVICE_URL || 'https://user-service-3j2j.onrender.com';
     console.log(`[API Route] Forwarding request to ${userServiceUrl}/api/users/${params.id}/activity`);
 
     const response = await fetch(`${userServiceUrl}/api/users/${params.id}/activity`, {

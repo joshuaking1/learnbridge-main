@@ -60,7 +60,7 @@ export default function MyAssessmentsPage() {
                 setErrorLoading(null);
                 try {
                     // Use the correct endpoint for fetching assessments
-                    const response = await fetch('http://localhost:3005/api/teacher-tools/assessments', {
+                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -93,7 +93,7 @@ export default function MyAssessmentsPage() {
         setDeletingId(assessmentId);
         try {
             // Use the correct endpoint for deleting assessments
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/assessments/${assessmentId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/assessments/${assessmentId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });

@@ -59,7 +59,7 @@ export default function MyRubricsPage() {
                 setErrorLoading(null);
                 try {
                     // Use the correct endpoint for fetching rubrics
-                    const response = await fetch('http://localhost:3005/api/teacher-tools/rubrics', {
+                    const response = await fetch('https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics', {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {
@@ -92,7 +92,7 @@ export default function MyRubricsPage() {
         setDeletingId(rubricId);
         try {
             // Use the correct endpoint for deleting rubrics
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/rubrics/${rubricId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics/${rubricId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` } as any,
             });

@@ -58,7 +58,7 @@ export function BookCollection() {
     const fetchBooks = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:3004/api/ai/processed-documents', { 
+        const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', { 
           headers: { 'Authorization': `Bearer ${token}` } 
         });
         

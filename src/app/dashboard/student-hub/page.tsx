@@ -75,7 +75,7 @@ export default function StudentHubPage() {
             const fetchBooks = async () => {
                 setIsLoadingBooks(true);
                 try {
-                    const response = await fetch('http://localhost:3004/api/ai/processed-documents', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/processed-documents', { headers: { 'Authorization': `Bearer ${token}` } });
                     if (!response.ok) throw new Error('Failed to fetch book list');
                     const data = await response.json();
                     const books = data.documents || [];
@@ -111,7 +111,7 @@ export default function StudentHubPage() {
 
                 // Removed console log for security
                 try {
-                    const response = await fetch(`http://localhost:3004/api/ai/sbc-content?${params.toString()}`, {
+                    const response = await fetch(`https://learnbridge-ai-service.onrender.com/api/ai/sbc-content?${params.toString()}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
                     if (!response.ok) {

@@ -11,7 +11,7 @@ import {
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? '/api/learning-paths' 
-  : 'http://localhost:3007/api/learning-paths';
+  : 'https://learnbridge-teacher-tools-service.onrender.com/api/learning-paths';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {

@@ -68,7 +68,7 @@ export default function ViewLessonPlanPage() {
                 setErrorLoading(null);
                 console.log(`Fetching lesson plan with ID: ${planId}`);
                 try {
-                    const response = await fetch(`http://localhost:3005/api/teacher-tools/lessons/${planId}`, {
+                    const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons/${planId}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                     });
 
@@ -146,7 +146,7 @@ export default function ViewLessonPlanPage() {
         };
 
         try {
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/lessons/${planId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/lessons/${planId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),

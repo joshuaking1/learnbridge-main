@@ -92,7 +92,7 @@ export function PeerChatroom() {
     // Uncomment when backend is ready
     /*
     // Initialize socket connection
-    socketRef.current = io("http://localhost:3007", {
+    socketRef.current = io("https://learnbridge-teacher-tools-service.onrender.com", {
       transports: ["websocket"],
     });
 
@@ -199,7 +199,7 @@ export function PeerChatroom() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/chat/circles", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/chat/circles", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -335,7 +335,7 @@ export function PeerChatroom() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch(`http://localhost:3007/api/learners-portal/chat/circles/${circleId}/messages`, {
+      const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/chat/circles/${circleId}/messages`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -381,7 +381,7 @@ export function PeerChatroom() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch(`http://localhost:3007/api/learners-portal/chat/circles/${selectedCircle.id}/messages`, {
+      const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/chat/circles/${selectedCircle.id}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -484,7 +484,7 @@ export function PeerChatroom() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/chat/flag-for-help", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/chat/flag-for-help", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -576,7 +576,7 @@ export function PeerChatroom() {
 
       // Uncomment when backend is ready
       /*
-      const response = await fetch("http://localhost:3007/api/learners-portal/chat/circles", {
+      const response = await fetch("https://learnbridge-teacher-tools-service.onrender.com/api/learners-portal/chat/circles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

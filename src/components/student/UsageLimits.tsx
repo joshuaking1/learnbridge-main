@@ -40,7 +40,7 @@ export function UsageLimits() {
                 // Use relative URL in production, which will be handled by Vercel rewrites
                 const apiUrl = process.env.NODE_ENV === 'production' 
                     ? '/api/daily-quizzes/limits'
-                    : 'http://localhost:3006/api/daily-quizzes/limits';
+                    : 'https://learnbridgedu.onrender.com/api/daily-quizzes/limits';
                 
                 const response = await fetch(apiUrl, {
                     headers: {

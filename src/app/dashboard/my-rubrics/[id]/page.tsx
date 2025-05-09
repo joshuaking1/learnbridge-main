@@ -73,7 +73,7 @@ export default function ViewRubricPage() {
                     // Use relative URL in production, which will be handled by Vercel rewrites
                     const apiBaseUrl = process.env.NODE_ENV === 'production'
                         ? '/api/teacher-tools'
-                        : 'http://localhost:3005/api/teacher-tools';
+                        : 'https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools';
 
                     const response = await fetch(`${apiBaseUrl}/rubrics/${rubricId}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
@@ -114,7 +114,7 @@ export default function ViewRubricPage() {
         setIsSavingEdit(true);
         const payload = { title: editedTitle, rubricContent: editedContent }; // Only update title and content
         try {
-            const response = await fetch(`http://localhost:3005/api/teacher-tools/rubrics/${rubricId}`, {
+            const response = await fetch(`https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/rubrics/${rubricId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload),
