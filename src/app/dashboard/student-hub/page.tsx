@@ -51,12 +51,22 @@ export default function StudentHubPage() {
             toast({ title: "Authentication Required", variant: "destructive" });
             router.push('/login');
         }
+        
+        // Log authentication state and user role
+        if (hasMounted && !isLoadingAuth) {
+            console.log('StudentHubPage: Authentication State:', { 
+                isAuthenticated, 
+                userRole: user?.role,
+                userDetails: user
+            });
+        }
+        
         // Add student role check
         if (hasMounted && !isLoadingAuth && isAuthenticated && user?.role !== 'student') {
            toast({ title: "Access Denied: Students Only", variant: "destructive" });
            router.push('/dashboard'); // Redirect non-students
         }
-    }, [hasMounted, isLoadingAuth, isAuthenticated, user, router, toast]);
+    }, [hasMounted, isLoadingAuth, isAuthenticated, router, toast, user]);
 
     // --- Fetch Available Books ---
     useEffect(() => {
@@ -153,7 +163,13 @@ export default function StudentHubPage() {
 
     // Show maintenance page for students
     // Force maintenance page for students regardless of showMaintenance flag
-    if (user?.role === 'student') {
+    console.log('About to check if maintenance page should be shown:', {
+        userRole: user?.role,
+        isStudent: user?.role === 'student'
+    });
+    
+    // Always show maintenance page for students
+    if (user && user.role === 'student') {
         console.log('Showing maintenance page for student');
         return <StudentPortalMaintenance />;
     }
