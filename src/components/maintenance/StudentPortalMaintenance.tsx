@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Tool, Clock, ArrowRight } from 'lucide-react';
+import { AlertTriangle, Wrench, Clock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -33,7 +33,7 @@ export const StudentPortalMaintenance = () => {
   };
 
   // Animation for the tools
-  const toolsVariants = {
+  const wrenchVariants = {
     initial: { rotate: 0 },
     animate: {
       rotate: [0, 15, -15, 0],
@@ -81,11 +81,11 @@ export const StudentPortalMaintenance = () => {
               <div className="flex flex-col md:flex-row gap-6 items-center">
                 <motion.div 
                   className="bg-brand-orange/10 p-4 rounded-full"
-                  variants={toolsVariants}
+                  variants={wrenchVariants}
                   initial="initial"
                   animate="animate"
                 >
-                  <Tool className="h-12 w-12 text-brand-orange" />
+                  <Wrench className="h-12 w-12 text-brand-orange" />
                 </motion.div>
                 <div>
                   <h2 className="text-2xl font-bold mb-2 text-white">System Upgrades in Progress</h2>
