@@ -14,8 +14,15 @@ export function ClerkAuthSync() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      // Get the role from Clerk's public metadata
-      const role = (user.publicMetadata?.role as string) || 'student';
+      // Get the role from Clerk's public metadata - force to lowercase for consistency
+      const clerkRole = (user.publicMetadata?.role as string) || '';
+      // Default to student if no role is set or if role is invalid
+      const role = ['student', 'teacher', 'admin'].includes(clerkRole.toLowerCase()) 
+        ? clerkRole.toLowerCase() 
+        : 'student';
+      
+      console.log('ClerkAuthSync: User role from Clerk metadata:', clerkRole);
+      console.log('ClerkAuthSync: Normalized role being set:', role);
       
       // Create a user object for our internal auth store
       const userData = {
@@ -23,7 +30,7 @@ export function ClerkAuthSync() {
         email: user.emailAddresses[0]?.emailAddress || '',
         firstName: user.firstName || '',
         surname: user.lastName || '',
-        role: role, // Use the role from Clerk metadata
+        role: role, // Use the normalized role
         profile_image_url: user.imageUrl || ''
       };
 

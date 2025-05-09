@@ -32,6 +32,8 @@ export default function StudentHubPage() {
     const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
     const [showMaintenance, setShowMaintenance] = useState(true); // Set to true to always show maintenance page
+    
+    console.log('StudentHubPage: User role:', user?.role);
 
     // State for content viewing
     const [availableBooks, setAvailableBooks] = useState<string[]>([]); // Reuse book fetching logic
@@ -150,7 +152,9 @@ export default function StudentHubPage() {
     }
 
     // Show maintenance page for students
-    if (showMaintenance && user.role === 'student') {
+    // Force maintenance page for students regardless of showMaintenance flag
+    if (user?.role === 'student') {
+        console.log('Showing maintenance page for student');
         return <StudentPortalMaintenance />;
     }
 

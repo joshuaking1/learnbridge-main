@@ -78,7 +78,7 @@ export function RoleSelection() {
               <BookOpen className="h-5 w-5 mr-2" />
               <div>
                 <div className="font-medium">Teacher</div>
-                <div className="text-sm text-gray-500">Create content and manage students</div>
+                <div className="text-sm text-gray-500">Create content</div>
               </div>
             </Label>
           </div>
