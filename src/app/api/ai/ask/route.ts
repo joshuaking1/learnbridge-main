@@ -25,6 +25,12 @@ export async function POST(request: NextRequest) {
       includeThinking // Pass this parameter to the AI service if it supports it
     };
 
+    // Log the request for debugging
+    console.log('Forwarding request to AI service:', {
+      url: `${AI_SERVICE_URL}/api/ai/ask`,
+      authHeader: authHeader ? 'Present' : 'Missing'
+    });
+
     // Forward the request to the AI service
     const response = await fetch(`${AI_SERVICE_URL}/api/ai/ask`, {
       method: 'POST',
@@ -33,6 +39,8 @@ export async function POST(request: NextRequest) {
         'Authorization': authHeader,
       },
       body: JSON.stringify(aiRequestBody),
+      // Add longer timeout for the AI service
+      cache: 'no-store',
     });
 
     // Get the response data

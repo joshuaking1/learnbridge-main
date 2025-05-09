@@ -64,19 +64,12 @@ export function AiChatInterfaceWithThinking() {
                 return;
             }
 
-            // Check if token is valid, if not try to refresh it
-            if (!isTokenValid(token)) {
-                console.log('Token appears to be invalid or expired, attempting to refresh...');
-                const refreshed = await refreshToken();
-
-                if (!refreshed) {
-                    toast({ title: "Session Expired", description: "Please log in again.", variant: "destructive" });
-                    setIsLoading(false);
-                    return;
-                }
-
-                console.log('Token refreshed successfully, continuing with request');
-            }
+            // For Clerk authentication, we don't need to validate the token in the same way
+            // as we're using Clerk's session management
+            console.log('Proceeding with AI request using current authentication');
+            
+            // Log authentication state for debugging
+            console.log('Auth state:', { isAuthenticated, token: token ? 'exists' : 'missing' });
 
             // Call the AI API
             console.log('Sending request to AI service with prompt:', prompt);
