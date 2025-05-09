@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar"; // Import the Sidebar
 import { cn } from "@/lib/utils";
+import { ClerkAuthSync } from "@/components/auth/ClerkAuthSync"; // Import the auth sync component
 
 // Create a custom event for sidebar collapse state changes
 const SIDEBAR_COLLAPSE_EVENT = "sidebar-collapse-change";
@@ -33,6 +34,9 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
+      {/* Component to sync Clerk auth with our internal auth store */}
+      <ClerkAuthSync />
+      
       {/* Pass the event name to Sidebar so it can dispatch events */}
       <Sidebar collapseEventName={SIDEBAR_COLLAPSE_EVENT} />
 
