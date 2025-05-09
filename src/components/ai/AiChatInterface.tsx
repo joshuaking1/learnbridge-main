@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"; // To make chat scroll
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react"; // Loading spinner icon
 import { useAuthStore } from "@/stores/useAuthStore"; // Import auth store
-import { isTokenValid } from "@/utils/authDebug"; // Import token validation utility
+import { useAuth } from "@clerk/nextjs"; // Import Clerk's useAuth hook
 
 interface Message {
     role: 'user' | 'assistant';
@@ -21,7 +21,8 @@ export function AiChatInterface() {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     const scrollAreaRef = useRef<HTMLDivElement>(null); // Ref for auto-scrolling
-    const { token, isAuthenticated, refreshToken } = useAuthStore(); // Get token and refresh function from auth store
+    const { token, isAuthenticated } = useAuthStore(); // Get token from auth store
+    const { getToken } = useAuth(); // Get Clerk's getToken function
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
@@ -41,28 +42,33 @@ export function AiChatInterface() {
         setInputPrompt(""); // Clear input field
 
         try {
-            // Check if user is authenticated and token exists
-            if (!isAuthenticated || !token) {
+            // Check if user is authenticated
+            if (!isAuthenticated) {
                 toast({ title: "Authentication Error", description: "Please log in again.", variant: "destructive" });
                 setIsLoading(false);
                 return;
             }
 
-            // For Clerk authentication, we don't need to validate the token in the same way
-            // as we're using Clerk's session management
-            console.log('Proceeding with AI request using current authentication');
+            // Get a fresh token from Clerk for this request
+            const freshToken = await getToken();
+            if (!freshToken) {
+                toast({ title: "Authentication Error", description: "Could not get authentication token. Please try again.", variant: "destructive" });
+                setIsLoading(false);
+                return;
+            }
             
-            // Log authentication state for debugging
-            console.log('Auth state:', { isAuthenticated, token: token ? 'exists' : 'missing' });
-
-            // Log the token length for debugging (without exposing the actual token)
-            console.log('Using token with length:', token ? token.length : 0);
+            // Log authentication state for debugging (without exposing the actual token)
+            console.log('AI request auth state:', { 
+                isAuthenticated, 
+                hasToken: !!freshToken,
+                tokenLength: freshToken.length
+            });
             
             const response = await fetch('/api/ai/ask', { // Use our Next.js API route
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${freshToken}`,
                 },
                 body: JSON.stringify({ prompt: prompt }),
                 // Ensure we're not using cached responses

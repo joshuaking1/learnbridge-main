@@ -159,7 +159,8 @@ export default function AssessmentCreatorPage() {
 
         try {
             console.log("Sending request to AI service...");
-            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/assessment', {
+            // Use our Next.js API route instead of calling the AI service directly
+            const response = await fetch('/api/ai/generate/assessment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

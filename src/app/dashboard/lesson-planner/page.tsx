@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useAuth } from '@clerk/nextjs';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,8 +89,8 @@ export default function LessonPlannerPage() {
         }
 
         try {
-            // Simple fetch with basic error handling
-            const response = await fetch('https://learnbridge-ai-service.onrender.com/api/ai/generate/lesson-plan', {
+            // Use our Next.js API route instead of calling the AI service directly
+            const response = await fetch('/api/ai/generate/lesson-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(values),

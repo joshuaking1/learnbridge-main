@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 /**
@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
  */
 export function ClerkAuthSync() {
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const { setUserAndToken } = useAuthStore();
 
   useEffect(() => {
@@ -34,9 +35,17 @@ export function ClerkAuthSync() {
         profile_image_url: user.imageUrl || ''
       };
 
-      // Set the user and token in our auth store
-      // For the token, we're using a placeholder as Clerk handles the actual token
-      setUserAndToken(userData, 'clerk-managed-token');
+      // Get the actual JWT token from Clerk and set it in our auth store
+      getToken().then(token => {
+        console.log('ClerkAuthSync: Got Clerk JWT token, length:', token?.length || 0);
+        if (token) {
+          setUserAndToken(userData, token);
+        } else {
+          console.error('ClerkAuthSync: Failed to get Clerk JWT token');
+        }
+      }).catch(error => {
+        console.error('ClerkAuthSync: Error getting Clerk JWT token:', error);
+      });
     }
   }, [isLoaded, user, setUserAndToken]);
 
