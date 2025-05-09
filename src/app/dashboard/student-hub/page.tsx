@@ -16,6 +16,7 @@ import { AiTeacherAvatar } from '@/components/ai/AiTeacherAvatar';
 import { LiveClassroom } from '@/components/classroom/LiveClassroom';
 import { StudyGroup } from '@/components/classroom/StudyGroup';
 import { ProgressTracker } from '@/components/classroom/ProgressTracker';
+import { StudentPortalMaintenance } from '@/components/maintenance/StudentPortalMaintenance';
 
 // Interface for content chunks
 interface ContentChunk {
@@ -30,6 +31,7 @@ export default function StudentHubPage() {
     const { toast } = useToast();
     const { user, token, isAuthenticated, isLoading: isLoadingAuth } = useAuthStore();
     const [hasMounted, setHasMounted] = useState(false);
+    const [showMaintenance, setShowMaintenance] = useState(true); // Set to true to always show maintenance page
 
     // State for content viewing
     const [availableBooks, setAvailableBooks] = useState<string[]>([]); // Reuse book fetching logic
@@ -147,6 +149,11 @@ export default function StudentHubPage() {
         return null; // Will redirect in useEffect
     }
 
+    // Show maintenance page for students
+    if (showMaintenance && user.role === 'student') {
+        return <StudentPortalMaintenance />;
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white p-4 md:p-8">
              <header className="mb-8 flex justify-between items-center">
@@ -257,7 +264,7 @@ export default function StudentHubPage() {
                     </Card>
                 </Link>
                 
-                
+                <Link href="/dashboard/student-hub/learning-path">
                     <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                         <CardContent className="p-6">
                             <div className="flex flex-col items-center text-center">
