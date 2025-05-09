@@ -77,6 +77,9 @@ export function AiChatInterfaceWithThinking() {
             let data: ApiResponse;
 
             try {
+                // Log the token length for debugging (without exposing the actual token)
+                console.log('Using token with length:', token ? token.length : 0);
+                
                 response = await fetch('/api/ai/ask', {
                     method: 'POST',
                     headers: {
@@ -87,6 +90,8 @@ export function AiChatInterfaceWithThinking() {
                         prompt: prompt,
                         includeThinking: true // Request thinking process from API
                     }),
+                    // Ensure we're not using cached responses
+                    cache: 'no-store',
                 });
 
                 console.log('Response from AI service:', response.status);

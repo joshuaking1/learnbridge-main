@@ -55,6 +55,9 @@ export function AiChatInterface() {
             // Log authentication state for debugging
             console.log('Auth state:', { isAuthenticated, token: token ? 'exists' : 'missing' });
 
+            // Log the token length for debugging (without exposing the actual token)
+            console.log('Using token with length:', token ? token.length : 0);
+            
             const response = await fetch('/api/ai/ask', { // Use our Next.js API route
                 method: 'POST',
                 headers: {
@@ -62,6 +65,8 @@ export function AiChatInterface() {
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ prompt: prompt }),
+                // Ensure we're not using cached responses
+                cache: 'no-store',
             });
 
             const data = await response.json();

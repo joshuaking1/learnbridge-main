@@ -31,12 +31,21 @@ export async function POST(request: NextRequest) {
       authHeader: authHeader ? 'Present' : 'Missing'
     });
 
-    // Forward the request to the AI service
+    // For Clerk authentication, we need to create a custom token for the AI service
+    // Extract the token from the Authorization header
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Log the token for debugging (only partial for security)
+    console.log('Token length:', token.length);
+    console.log('Token prefix:', token.substring(0, 10) + '...');
+    
+    // Forward the request to the AI service with a custom header format
     const response = await fetch(`${AI_SERVICE_URL}/api/ai/ask`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
+        'Authorization': `Bearer ${token}`,
+        'X-API-Key': process.env.AI_SERVICE_API_KEY || '',
       },
       body: JSON.stringify(aiRequestBody),
       // Add longer timeout for the AI service
