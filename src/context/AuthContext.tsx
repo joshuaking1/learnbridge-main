@@ -68,6 +68,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // Helper to check if token is about to expire (within 2 minutes)
+  const isTokenNearExpiry = (token: string): boolean => {
+    try {
+      // Simple JWT expiry check - decode the JWT payload
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return true; // If no expiry, assume it needs refresh
+      
+      // Check if token expires in less than 2 minutes
+      const expiryTime = payload.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      const timeUntilExpiry = expiryTime - currentTime;
+      
+      return timeUntilExpiry < 2 * 60 * 1000; // Less than 2 minutes until expiry
+    } catch (error) {
+      console.error('Error checking token expiry:', error);
+      return true; // If we can't check, assume it needs refresh
+    }
+  };
+
   // Function to refresh the token using Clerk
   const refreshToken = async (): Promise<string | null> => {
     try {
@@ -75,6 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const freshToken = await getToken();
       
       if (freshToken) {
+        // Log token information for debugging
+        try {
+          const payload = JSON.parse(atob(freshToken.split('.')[1]));
+          const expiryDate = new Date(payload.exp * 1000).toISOString();
+          console.log(`New token acquired. Expires at: ${expiryDate}`);
+        } catch (e) {
+          console.log('Unable to parse token expiry time');
+        }
+        
         setToken(freshToken);
         localStorage.setItem('token', freshToken);
         return freshToken;
@@ -86,13 +114,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Set up token refresh at regular intervals (every 5 minutes)
+  // Set up token refresh at regular intervals (every 3 minutes)
   useEffect(() => {
     if (!token) return;
 
     const refreshInterval = setInterval(async () => {
+      console.log('Executing scheduled token refresh');
       await refreshToken();
-    }, 5 * 60 * 1000); // Refresh every 5 minutes
+    }, 3 * 60 * 1000); // Refresh every 3 minutes instead of 5
 
     return () => clearInterval(refreshInterval);
   }, [token]);
@@ -107,16 +136,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (input.toString().includes('/api/')) {
         // This is an API call, check if we need to refresh the token
         try {
-          // Get fresh token before making API call
-          const freshToken = await refreshToken();
+          // Check if current token is about to expire
+          let freshToken = token;
+          const needsRefresh = isTokenNearExpiry(token);
           
-          // Update Authorization header if we have a fresh token
-          if (freshToken && init && init.headers) {
+          if (needsRefresh) {
+            console.log('Token is near expiry, refreshing before API call');
+            // Get fresh token before making API call
+            const newToken = await refreshToken();
+            if (newToken) {
+              freshToken = newToken;
+            } else {
+              console.warn('Failed to refresh token before API call');
+            }
+          }
+          
+          // Always update the Authorization header with the latest token
+          if (init) {
+            // Ensure headers object exists
+            init.headers = init.headers || {};
+            // Set the Authorization header
             init.headers = {
               ...init.headers,
               'Authorization': `Bearer ${freshToken}`
             };
           }
+          
+          // Log the token length for debugging
+          console.log(`Using token with length: ${freshToken.length}`);
         } catch (error) {
           console.error('Error in fetch interceptor:', error);
         }
