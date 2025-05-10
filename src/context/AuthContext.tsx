@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/shared';
 import { useRouter } from 'next/navigation';
+import { useAuth as useClerkAuth } from '@clerk/nextjs';
 
 interface AuthContextType {
   user: User | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   login: (user: User, token: string) => void;
   logout: () => void;
   updateUser: (user: User) => void;
+  refreshToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = useClerkAuth();
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
@@ -65,6 +68,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // Function to refresh the token using Clerk
+  const refreshToken = async (): Promise<string | null> => {
+    try {
+      // Get a fresh token from Clerk
+      const freshToken = await getToken();
+      
+      if (freshToken) {
+        setToken(freshToken);
+        localStorage.setItem('token', freshToken);
+        return freshToken;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      return null;
+    }
+  };
+
+  // Set up token refresh at regular intervals (every 5 minutes)
+  useEffect(() => {
+    if (!token) return;
+
+    const refreshInterval = setInterval(async () => {
+      await refreshToken();
+    }, 5 * 60 * 1000); // Refresh every 5 minutes
+
+    return () => clearInterval(refreshInterval);
+  }, [token]);
+
+  // Setup automatic token refresh before API calls
+  useEffect(() => {
+    if (!token) return;
+    
+    // Create interceptor for fetch calls
+    const originalFetch = window.fetch;
+    window.fetch = async (input, init) => {
+      if (input.toString().includes('/api/')) {
+        // This is an API call, check if we need to refresh the token
+        try {
+          // Get fresh token before making API call
+          const freshToken = await refreshToken();
+          
+          // Update Authorization header if we have a fresh token
+          if (freshToken && init && init.headers) {
+            init.headers = {
+              ...init.headers,
+              'Authorization': `Bearer ${freshToken}`
+            };
+          }
+        } catch (error) {
+          console.error('Error in fetch interceptor:', error);
+        }
+      }
+      return originalFetch(input, init);
+    };
+
+    return () => {
+      // Restore original fetch when component unmounts
+      window.fetch = originalFetch;
+    };
+  }, [token]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -75,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateUser,
+        refreshToken,
       }}
     >
       {children}
