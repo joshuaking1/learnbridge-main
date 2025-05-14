@@ -34,7 +34,6 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('Error verifying webhook:', err);
     return new Response('Error: Invalid webhook signature', {
       status: 400,
     });
@@ -56,12 +55,11 @@ export async function POST(req: Request) {
         await handleUserDeleted(evt.data);
         break;
       default:
-        console.log(`Unhandled event type: ${eventType}`);
+        // No action needed for unhandled event types
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error handling webhook event:', error);
     return NextResponse.json({ success: false, error: 'Error processing webhook' }, { status: 500 });
   }
 }
@@ -73,8 +71,7 @@ async function handleUserCreated(data: any) {
   const primaryEmail = email_addresses.find((email: any) => email.id === data.primary_email_address_id)?.email_address;
   const role = public_metadata?.role || 'student';
 
-  // TODO: Create user in your database
-  console.log('User created:', { id, email: primaryEmail, firstName: first_name, lastName: last_name, role });
+  // Create user in your database
 
   // Example API call to your user service
   try {
@@ -97,7 +94,6 @@ async function handleUserCreated(data: any) {
       throw new Error(`Failed to create user in database: ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error creating user in database:', error);
     throw error;
   }
 }
@@ -108,8 +104,7 @@ async function handleUserUpdated(data: any) {
   const primaryEmail = email_addresses.find((email: any) => email.id === data.primary_email_address_id)?.email_address;
   const role = public_metadata?.role || 'student';
 
-  // TODO: Update user in your database
-  console.log('User updated:', { id, email: primaryEmail, firstName: first_name, lastName: last_name, role });
+  // Update user in your database
 
   // Example API call to your user service
   try {
@@ -131,7 +126,6 @@ async function handleUserUpdated(data: any) {
       throw new Error(`Failed to update user in database: ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error updating user in database:', error);
     throw error;
   }
 }
@@ -140,8 +134,7 @@ async function handleUserDeleted(data: any) {
   // Extract user ID from Clerk event
   const { id } = data;
 
-  // TODO: Delete or deactivate user in your database
-  console.log('User deleted:', { id });
+  // Delete or deactivate user in your database
 
   // Example API call to your user service
   try {
@@ -156,7 +149,6 @@ async function handleUserDeleted(data: any) {
       throw new Error(`Failed to delete user in database: ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error deleting user in database:', error);
     throw error;
   }
 }

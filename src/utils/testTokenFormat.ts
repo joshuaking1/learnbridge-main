@@ -5,18 +5,18 @@
 
 import { formatBearerToken, isValidJwtFormat } from './tokenUtils';
 
-// Sample tokens to test
+// Sample tokens to test - using dummy tokens for testing only
 const testCases = [
   { 
     name: 'Valid JWT with Bearer prefix', 
-    token: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-    expectedFormat: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+    token: 'Bearer dummy.token.format',
+    expectedFormat: 'Bearer dummy.token.format',
     expectedValid: true
   },
   { 
     name: 'Valid JWT without Bearer prefix', 
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-    expectedFormat: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+    token: 'dummy.token.format',
+    expectedFormat: 'Bearer dummy.token.format',
     expectedValid: true
   },
   { 
@@ -33,23 +33,28 @@ const testCases = [
   }
 ];
 
-// Run the tests
-console.log('Testing token formatting utility...');
-console.log('==================================');
+// Function to run tests without console logging
+export function runTokenFormatTests(): { passed: number, failed: number } {
+  let passed = 0;
+  let failed = 0;
 
-testCases.forEach(testCase => {
-  console.log(`\nTest case: ${testCase.name}`);
-  console.log(`Input token: ${testCase.token}`);
-  
-  // Test formatBearerToken
-  const formattedToken = formatBearerToken(testCase.token);
-  console.log(`Formatted token: ${formattedToken}`);
-  console.log(`Format test: ${formattedToken === testCase.expectedFormat ? 'PASSED' : 'FAILED'}`);
-  
-  // Test isValidJwtFormat
-  const isValid = isValidJwtFormat(testCase.token);
-  console.log(`Validity test: ${isValid === testCase.expectedValid ? 'PASSED' : 'FAILED'}`);
-});
+  testCases.forEach(testCase => {
+    // Test formatBearerToken
+    const formattedToken = formatBearerToken(testCase.token);
+    if (formattedToken === testCase.expectedFormat) {
+      passed++;
+    } else {
+      failed++;
+    }
+    
+    // Test isValidJwtFormat
+    const isValid = isValidJwtFormat(testCase.token);
+    if (isValid === testCase.expectedValid) {
+      passed++;
+    } else {
+      failed++;
+    }
+  });
 
-console.log('\n==================================');
-console.log('Token formatting tests complete');
+  return { passed, failed };
+}
