@@ -85,7 +85,7 @@ export default function MyTosPage() {
         try {
           // Use the correct endpoint for fetching ToS
           const response = await fetch(
-            "https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos",
+            "http://localhost:3005/api/teacher-tools/tos",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -128,7 +128,7 @@ export default function MyTosPage() {
     try {
       // Use the correct endpoint for deleting ToS
       const response = await fetch(
-        `https://learnbridge-teacher-tools-service.onrender.com/api/teacher-tools/tos/${tosId}`,
+        `http://localhost:3005/api/teacher-tools/tos/${tosId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
