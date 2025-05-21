@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
           decodedPayload = JSON.parse(atob(parts[1]));
         }
       } catch (error) {
-        console.error('Error decoding token payload:', error);
+        // Handle error silently
       }
     }
     
@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error in token debug endpoint:', error);
     return NextResponse.json(
       { error: 'Failed to process request' },
       { status: 500 }

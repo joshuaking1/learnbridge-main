@@ -16,7 +16,6 @@ const speechSynthesisSupported = typeof window !== 'undefined' && 'speechSynthes
 export function speak(text: string, options: SpeechOptions = {}): Promise<void> {
   // Return a rejected promise if speech synthesis is not supported
   if (!speechSynthesisSupported) {
-    console.warn('Speech synthesis not supported in this browser');
     return Promise.reject(new Error('Speech synthesis not supported'));
   }
 
@@ -37,19 +36,16 @@ export function speak(text: string, options: SpeechOptions = {}): Promise<void> 
 
       // Set up event handlers
       utterance.onend = () => {
-        console.log('Speech finished');
         resolve();
       };
 
       utterance.onerror = (event) => {
-        console.error('Speech error:', event);
         reject(new Error(`Speech synthesis error: ${event.error}`));
       };
 
       // Start speaking
       window.speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error('Error initializing speech:', error);
       reject(error);
     }
   });

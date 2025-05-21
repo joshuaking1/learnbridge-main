@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(storedToken);
       }
     } catch (error) {
-      console.error('Error restoring auth state:', error);
+      // Handle error silently
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       return timeUntilExpiry < 2 * 60 * 1000; // Less than 2 minutes until expiry
     } catch (error) {
-      console.error('Error checking token expiry:', error);
       return true; // If we can't check, assume it needs refresh
     }
   };
@@ -94,22 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const freshToken = await getToken();
       
       if (freshToken) {
-        // Log token information for debugging
-        try {
-          const payload = JSON.parse(atob(freshToken.split('.')[1]));
-          const expiryDate = new Date(payload.exp * 1000).toISOString();
-          console.log(`New token acquired. Expires at: ${expiryDate}`);
-        } catch (e) {
-          console.log('Unable to parse token expiry time');
-        }
-        
         setToken(freshToken);
         localStorage.setItem('token', freshToken);
         return freshToken;
       }
       return null;
     } catch (error) {
-      console.error('Failed to refresh token:', error);
       return null;
     }
   };
@@ -119,7 +108,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!token) return;
 
     const refreshInterval = setInterval(async () => {
-      console.log('Executing scheduled token refresh');
       await refreshToken();
     }, 3 * 60 * 1000); // Refresh every 3 minutes instead of 5
 
@@ -141,13 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const needsRefresh = isTokenNearExpiry(token);
           
           if (needsRefresh) {
-            console.log('Token is near expiry, refreshing before API call');
             // Get fresh token before making API call
             const newToken = await refreshToken();
             if (newToken) {
               freshToken = newToken;
-            } else {
-              console.warn('Failed to refresh token before API call');
             }
           }
           
@@ -161,11 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               'Authorization': `Bearer ${freshToken}`
             };
           }
-          
-          // Log the token length for debugging
-          console.log(`Using token with length: ${freshToken.length}`);
         } catch (error) {
-          console.error('Error in fetch interceptor:', error);
+          // Handle error silently
         }
       }
       return originalFetch(input, init);
