@@ -29,19 +29,6 @@ import { Recommendations } from "@/components/learning-path/Recommendations";
 import { learningPathService } from "@/services/learningPathService";
 import { LearningPath, Achievement, ProgressSummary as ProgressSummaryType, Recommendation } from "@/types/learning-path";
 
-// Type declarations for components
-type DashboardShellProps = {
-  children: React.ReactNode;
-  className?: string;
-};
-
-type DashboardHeaderProps = {
-  heading: string;
-  description: string;
-  icon: React.ElementType;
-  children?: React.ReactNode;
-};
-
 export default function LearningPathPage() {
   const router = useRouter();
   const { toast } = useToast();
