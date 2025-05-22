@@ -8,11 +8,56 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { enhancedForumService, Thread, ForumCategory } from '@/services/enhancedForumService';
-import { useAuth } from '@/context/AuthContext';
 import ForumBotInterface from '@/components/forum/ForumBotInterface';
 import ThreadTags from '@/components/forum/ThreadTags';
 
 export default function CategoryPage() {
+  const [isClient, setIsClient] = useState(false);
+  const params = useParams();
+  const categoryId = params.id as string;
+  
+  // Use useEffect to determine if we're running on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // If we're still server-side or statically generating, show a loading skeleton
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-300 rounded w-1/3 mb-6"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/4 mb-10"></div>
+            
+            <div className="flex flex-wrap gap-3 mb-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 bg-gray-300 rounded w-20"></div>
+              ))}
+            </div>
+            
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="h-6 bg-gray-300 rounded w-2/3 mb-3"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/3 mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // If we're on the client, render the actual component with the category ID
+  return <ClientSideContent categoryId={categoryId} />;
+}
+
+// Actual content that will only be loaded on the client side where auth is available
+const ClientSideContent = ({ categoryId }: { categoryId: string }) => {
   const [category, setCategory] = useState<ForumCategory | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,10 +65,11 @@ export default function CategoryPage() {
   const [isBotMinimized, setIsBotMinimized] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showAnsweredOnly, setShowAnsweredOnly] = useState(false);
-  const { getToken, user } = useAuth();
-  const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  
+  // Safely import authentication only on client side
+  const auth = require('@/context/AuthContext');
+  const { getToken, user } = auth.useAuth();
 
   useEffect(() => {
     if (categoryId) {

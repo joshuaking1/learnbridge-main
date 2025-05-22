@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { enhancedForumService } from '@/services/enhancedForumService';
-import { useAuth } from '@/context/AuthContext';
 
 interface LeaderboardEntry {
   userId: string;
@@ -22,11 +21,51 @@ interface LeaderboardEntry {
 type TimeFrame = 'weekly' | 'monthly' | 'alltime';
 
 export default function LeaderboardPage() {
+  const [isClient, setIsClient] = useState(false);
+  
+  // Use useEffect to determine if we're running on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // If we're still server-side or statically generating, show a loading skeleton
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Leaderboard</h1>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="animate-pulse">
+              <div className="flex justify-between mb-6">
+                <div className="h-8 bg-gray-300 rounded w-1/4"></div>
+                <div className="h-8 bg-gray-300 rounded w-1/4"></div>
+              </div>
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // If we're on the client, render the actual component
+  return <ClientSideContent />;
+}
+
+// Actual content that will only be loaded on the client side where auth is available
+const ClientSideContent = () => {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [timeframe, setTimeframe] = useState<TimeFrame>('weekly');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { getToken, user } = useAuth();
+  
+  // Safely import authentication only on client side
+  const auth = require('@/context/AuthContext');
+  const { getToken, user } = auth.useAuth();
 
   useEffect(() => {
     loadLeaderboard();

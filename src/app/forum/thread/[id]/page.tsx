@@ -8,20 +8,64 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { enhancedForumService, Thread, Post } from '@/services/enhancedForumService';
-import { useAuth } from '@/context/AuthContext';
 import ThreadDisplay from '@/components/forum/ThreadDisplay';
 import ForumBotInterface from '@/components/forum/ForumBotInterface';
 
 export default function ThreadPage() {
+  const [isClient, setIsClient] = useState(false);
+  const params = useParams();
+  const threadId = params.id as string;
+  
+  // Use useEffect to determine if we're running on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // If we're still server-side or statically generating, show a loading skeleton
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-2/3 mb-4"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/3 mb-8"></div>
+            
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
+              <div className="h-24 bg-gray-200 rounded-lg mb-4"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+            </div>
+            
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="h-4 bg-gray-300 rounded w-1/4 mb-4"></div>
+                  <div className="h-16 bg-gray-200 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // If we're on the client, render the actual component with the thread ID
+  return <ClientSideContent threadId={threadId} />;
+}
+
+// Actual content that will only be loaded on the client side where auth is available
+const ClientSideContent = ({ threadId }: { threadId: string }) => {
   const [thread, setThread] = useState<Thread | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBotMinimized, setIsBotMinimized] = useState(true);
-  const { getToken } = useAuth();
-  const params = useParams();
   const router = useRouter();
-  const threadId = params.id as string;
+  
+  // Safely import authentication only on client side
+  const auth = require('@/context/AuthContext');
+  const { getToken } = auth.useAuth();
 
   useEffect(() => {
     if (threadId) {

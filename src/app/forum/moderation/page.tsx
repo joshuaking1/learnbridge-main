@@ -8,7 +8,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { enhancedForumService } from '@/services/enhancedForumService';
-import { useAuth } from '@/context/AuthContext';
 
 type ReportStatus = 'pending' | 'resolved';
 type ReportAction = 'approve' | 'remove' | 'warn';
@@ -27,12 +26,57 @@ interface ReportedContent {
 }
 
 export default function ModerationPage() {
+  const [isClient, setIsClient] = useState(false);
+  
+  // Use useEffect to determine if we're running on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // If we're still server-side or statically generating, show a loading skeleton
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-1/3 mb-6"></div>
+            <div className="flex gap-4 mb-6">
+              <div className="h-10 bg-gray-300 rounded w-28"></div>
+              <div className="h-10 bg-gray-200 rounded w-28"></div>
+            </div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="h-6 bg-gray-300 rounded w-2/3 mb-3"></div>
+                  <div className="h-16 bg-gray-200 rounded-lg mb-3"></div>
+                  <div className="flex justify-end gap-2">
+                    <div className="h-8 bg-gray-300 rounded w-20"></div>
+                    <div className="h-8 bg-gray-300 rounded w-20"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // If we're on the client, render the actual component
+  return <ClientSideContent />;
+}
+
+// Actual content that will only be loaded on the client side where auth is available
+const ClientSideContent = () => {
   const [reports, setReports] = useState<ReportedContent[]>([]);
   const [activeStatus, setActiveStatus] = useState<ReportStatus>('pending');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { getToken, user } = useAuth();
   const router = useRouter();
+  
+  // Safely import authentication only on client side
+  const auth = require('@/context/AuthContext');
+  const { getToken, user } = auth.useAuth();
 
   useEffect(() => {
     if (user) {
