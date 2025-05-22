@@ -1,6 +1,9 @@
 // src/app/forum/category/[id]/page.tsx
 'use client';
 
+// Force dynamic rendering to prevent static generation errors with auth
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';

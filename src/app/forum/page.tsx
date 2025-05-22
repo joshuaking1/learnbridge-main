@@ -1,6 +1,9 @@
 // src/app/forum/page.tsx
 'use client';
 
+// Force dynamic rendering to prevent static generation errors with auth
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import ForumCategories from '@/components/forum/ForumCategories';
 import ForumBotInterface from '@/components/forum/ForumBotInterface';
