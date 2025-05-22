@@ -2,9 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "bypassStaticGeneration": {
-    "includedRoutes": ["^/forum"]
-  },
   "rewrites": [
     {
       "source": "/api/auth/:path*",
