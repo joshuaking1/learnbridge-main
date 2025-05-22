@@ -17,7 +17,15 @@ export function ClerkAuthSync() {
     if (isLoaded && user) {
       // Get the role from Clerk's public metadata - force to lowercase for consistency
       const clerkRole = (user.publicMetadata?.role as string) || '';
-      // Default to student if no role is set or if role is invalid
+      
+      // Check if the user has completed role selection (they should have a role in metadata)
+      if (!clerkRole) {
+        console.log('ClerkAuthSync: No role found in Clerk metadata. User may need to complete role selection.');
+        // Don't proceed with setting up the user until they've selected a role
+        return;
+      }
+      
+      // Use the role from metadata or default to student if it's invalid
       const role = ['student', 'teacher', 'admin'].includes(clerkRole.toLowerCase()) 
         ? clerkRole.toLowerCase() 
         : 'student';
