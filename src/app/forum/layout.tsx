@@ -3,9 +3,7 @@
 
 import React from 'react';
 
-// Metadata that indicates this route should be dynamically rendered
-export const dynamic = 'force-dynamic';
-
+// Skip all forum pages during static generation
 export default function ForumLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="forum-layout">

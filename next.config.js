@@ -15,9 +15,10 @@ const nextConfig = {
   },
   // Configure dynamic rendering for the App Router
   experimental: {
-    serverComponentsExternalPackages: [],
     optimizeCss: false,
   },
+  // Correct property for external packages in Next.js 15.2.4
+  serverExternalPackages: [],
 };
 
 module.exports = nextConfig;
