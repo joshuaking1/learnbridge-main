@@ -74,26 +74,42 @@ export function RoleSelection() {
     try {
       setIsSubmitting(true);
       setError(null);
-
-      // Set the role and additional info in the user's metadata
-      // NOTE: The Clerk types might not be fully up to date, but this works
-      // despite the lint error about publicMetadata
-      await signUp.update({
-        unsafeMetadata: {
-          role,
-          school,
-          location
-        },
-        // @ts-ignore - This property works but is not in the TypeScript definitions
-        publicMetadata: {
-          role,
-          school,
-          location
-        },
-      });
-
-      // Complete the sign-up process
-      await setActive({ session: signUp.createdSessionId });
+      console.log('Submitting user data:', { role, school, location });
+      
+      // First, check if we have a valid session to update
+      if (!signUp.createdSessionId) {
+        console.error('No valid session ID found');
+        setError("Session creation failed. Please try signing up again.");
+        return;
+      }
+      
+      // Update the user metadata first
+      console.log('Updating user metadata...');
+      try {
+        await signUp.update({
+          firstName: role === 'teacher' ? 'Teacher' : 'Student',
+          lastName: school,
+          // Use unsafeMetadata for non-sensitive information that's safer to store
+          unsafeMetadata: {
+            role,
+            school,
+            location,
+          },
+        });
+        console.log('User metadata updated successfully');
+        
+        // Now try to activate the session
+        console.log('Activating session with ID:', signUp.createdSessionId);
+        await setActive({ session: signUp.createdSessionId });
+        console.log('Session activated successfully');
+        
+        // Redirect to dashboard after successful activation
+        window.location.href = '/dashboard';
+      } catch (updateError) {
+        console.error('Error updating user data:', updateError);
+        setError("Failed to update your profile. Please try again.");
+        throw updateError; // Re-throw to be caught by the outer catch
+      }
     } catch (err) {
       console.error("Error setting user data:", err);
       setError("Failed to set user data. Please try again.");
