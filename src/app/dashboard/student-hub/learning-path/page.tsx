@@ -170,6 +170,15 @@ export default function LearningPathPage() {
 
   // Handle start learning path
   const handleStartPath = async (pathId: number) => {
+    if (!token) {
+      toast({
+        title: "Authentication Error",
+        description: "Please log in again to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
       await learningPathService.startPath(token, pathId);
 
@@ -209,7 +218,7 @@ export default function LearningPathPage() {
   }
 
   return (
-    <>
+    <div className="space-y-6">
       <DashboardHeader
         heading="Learning Path"
         description="Your personalized learning journey"
@@ -238,7 +247,8 @@ export default function LearningPathPage() {
                 </p>
               </CardContent>
             </Card>
-          ) : null} {/* Render null if not loading and no summary */}
+          )}
+          {/* Render null if not loading and no summary */}
 
           {/* Learning Paths */}
           <Card>
@@ -449,6 +459,6 @@ export default function LearningPathPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }
