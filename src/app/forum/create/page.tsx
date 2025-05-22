@@ -6,12 +6,49 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { enhancedForumService, ForumCategory } from '@/services/enhancedForumService';
 import { forumBotService } from '@/services/forumBotService';
-import { useAuth } from '@/context/AuthContext';
 import RichTextEditor from '@/components/forum/RichTextEditor';
-import SafeAuthWrapper from '@/components/auth/SafeAuthWrapper';
 
-// The actual component that will be wrapped by SafeAuthWrapper
-function CreateThreadPageContent() {
+// Set up a default skeleton for static generation
+export const dynamic = 'force-dynamic';
+
+
+export default function CreateThreadPage() {
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+  
+  // Use useEffect to determine if we're running on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // If we're still server-side or statically generating, show a loading skeleton
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-1/3 mb-6"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/2 mb-10"></div>
+            
+            <div className="bg-white rounded-lg p-6 shadow-md">
+              <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
+              <div className="h-10 bg-gray-300 rounded w-full mb-6"></div>
+              
+              <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
+              <div className="h-40 bg-gray-300 rounded w-full mb-6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If we're on the client, lazy-load the actual component with authentication
+  return <ClientSideContent />;
+}
+
+// Actual content that will only be loaded on the client side where auth is available
+const ClientSideContent = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -26,7 +63,9 @@ function CreateThreadPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const { getToken, user } = useAuth();
+  // Safely import authentication only on client side
+  const auth = require('@/context/AuthContext');
+  const { getToken, user } = auth.useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryIdFromUrl = searchParams.get('categoryId');
@@ -466,11 +505,4 @@ function CreateThreadPageContent() {
   );
 }
 
-// Default export wrapped with SafeAuthWrapper to prevent static generation errors
-export default function CreateThreadPage() {
-  return (
-    <SafeAuthWrapper>
-      <CreateThreadPageContent />
-    </SafeAuthWrapper>
-  );
-}
+// The export default is now at the top of the file with the client-side rendering logic
