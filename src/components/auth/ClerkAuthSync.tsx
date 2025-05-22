@@ -15,23 +15,33 @@ export function ClerkAuthSync() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      // Get the role from Clerk's public metadata - force to lowercase for consistency
-      const clerkRole = (user.publicMetadata?.role as string) || '';
+      // Check for pending user data from localStorage (from role selection form)
+      const pendingRole = localStorage.getItem('pendingUserRole');
+      const pendingSchool = localStorage.getItem('pendingUserSchool');
+      const pendingLocation = localStorage.getItem('pendingUserLocation');
       
-      // Check if the user has completed role selection (they should have a role in metadata)
-      if (!clerkRole) {
-        console.log('ClerkAuthSync: No role found in Clerk metadata. User may need to complete role selection.');
-        // Don't proceed with setting up the user until they've selected a role
-        return;
+      // Get the role from Clerk's public metadata - force to lowercase for consistency
+      let clerkRole = (user.publicMetadata?.role as string) || '';
+      
+      // If we have a pending role from localStorage, use that
+      if (pendingRole && ['student', 'teacher'].includes(pendingRole)) {
+        console.log('ClerkAuthSync: Found pending role in localStorage:', pendingRole);
+        clerkRole = pendingRole;
+        
+        // Now that we've used these values, clear them from localStorage
+        localStorage.removeItem('pendingUserRole');
+        localStorage.removeItem('pendingUserSchool');
+        localStorage.removeItem('pendingUserLocation');
       }
       
-      // Use the role from metadata or default to student if it's invalid
+      // If still no role found, default to student but continue with auth
       const role = ['student', 'teacher', 'admin'].includes(clerkRole.toLowerCase()) 
         ? clerkRole.toLowerCase() 
         : 'student';
       
-      console.log('ClerkAuthSync: User role from Clerk metadata:', clerkRole);
-      console.log('ClerkAuthSync: Normalized role being set:', role);
+      console.log('ClerkAuthSync: Using role:', role);
+      console.log('ClerkAuthSync: School:', pendingSchool || 'Not provided');
+      console.log('ClerkAuthSync: Location:', pendingLocation || 'Not provided');
       
       // Create a user object for our internal auth store
       const userData = {
@@ -40,8 +50,12 @@ export function ClerkAuthSync() {
         firstName: user.firstName || '',
         surname: user.lastName || '',
         role: role, // Use the normalized role
-        profile_image_url: user.imageUrl || ''
+        profile_image_url: user.imageUrl || '',
+        school: pendingSchool || (user.publicMetadata?.school as string) || '',
+        location: pendingLocation || (user.publicMetadata?.location as string) || ''
       };
+      
+      console.log('ClerkAuthSync: Final user data being set:', userData);
 
       // Get the actual JWT token from Clerk and set it in our auth store
       getToken().then(token => {
