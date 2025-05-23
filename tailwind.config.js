@@ -22,9 +22,11 @@ module.exports = {
       colors: {
         // --- ADD YOUR CUSTOM COLORS HERE ---
         brand: {
-          darkblue: '#000f4a', // Your dark blue
-          midblue: '#0d68ae',  // Your medium blue
-          orange: '#fd6a3e',   // Your orange accent
+          blue: '#007bff',
+          lightblue: '#4da3ff',
+          darkblue: '#0056b3',
+          midblue: '#0066cc',
+          orange: '#fd6a3e',
         },
         // --- END CUSTOM COLORS ---
         border: "hsl(var(--border))",

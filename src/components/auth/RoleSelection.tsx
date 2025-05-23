@@ -5,9 +5,24 @@ import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookOpen, GraduationCap, CheckCircle, AlertCircle, MapPin, School } from "lucide-react";
+import {
+  Loader2,
+  BookOpen,
+  GraduationCap,
+  CheckCircle,
+  AlertCircle,
+  MapPin,
+  School,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -45,15 +60,19 @@ export function RoleSelection() {
     // Check if form is valid
     setFormValid(
       role && // role is already initialized and typed, so just check it exists
-      school.trim().length >= 2 && 
-      !schoolError &&
-      location.trim().length >= 2 && 
-      !locationError
+        school.trim().length >= 2 &&
+        !schoolError &&
+        location.trim().length >= 2 &&
+        !locationError
     );
   }, [role, school, location, schoolError, locationError]);
 
   if (!isLoaded) {
-    return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+    return (
+      <div className="flex justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
   }
 
   const handleSubmit = async () => {
@@ -74,44 +93,61 @@ export function RoleSelection() {
     try {
       setIsSubmitting(true);
       setError(null);
-      console.log('Submitting user data:', { role, school, location });
-      
-      // SIMPLIFIED APPROACH: Skip metadata updates which are causing issues
-      // Just activate the session and let the user complete their profile later
-      
-      // Store the selected role, school, and location in localStorage
-      // to be used after successful login
-      localStorage.setItem('pendingUserRole', role);
-      localStorage.setItem('pendingUserSchool', school);
-      localStorage.setItem('pendingUserLocation', location);
-      
-      console.log('Stored user data in localStorage for post-login processing');
-      
+      console.log("Submitting user data:", { role, school, location });
+
       // Check if we have a session ID to activate
       if (!signUp.createdSessionId) {
-        console.error('No valid session ID found');
+        console.error("No valid session ID found");
         // If no session ID, still try to continue without error
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
         return;
       }
-      
-      // Attempt to activate the session
-      console.log('Activating session with ID:', signUp.createdSessionId);
+
+      // First, activate the session to authenticate the user
+      console.log("Activating session with ID:", signUp.createdSessionId);
       await setActive({ session: signUp.createdSessionId });
-      console.log('Session activated successfully');
-      
-      // Redirect to dashboard after successful activation
-      window.location.href = '/dashboard';
+      console.log("Session activated successfully");
+
+      // Now update the user's metadata in Clerk
+      console.log("Updating user metadata...");
+      const metadataResponse = await fetch("/api/auth/update-metadata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role,
+          school: school.trim(),
+          location: location.trim(),
+        }),
+      });
+
+      if (!metadataResponse.ok) {
+        const errorData = await metadataResponse.json();
+        console.error("Failed to update metadata:", errorData);
+        throw new Error(errorData.error || "Failed to update user profile");
+      }
+
+      const metadataResult = await metadataResponse.json();
+      console.log("Metadata updated successfully:", metadataResult);
+
+      // Redirect to dashboard after successful completion
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error("Error during sign-up completion:", err);
-      
-      // Even if there's an error, try to redirect to dashboard
-      // The ClerkAuthSync component will handle authentication
-      setError("There was an issue, but we'll try to continue. Please wait...");
-      
-      // Wait 2 seconds then redirect anyway
+
+      // Store the data in localStorage as fallback
+      localStorage.setItem("pendingUserRole", role);
+      localStorage.setItem("pendingUserSchool", school);
+      localStorage.setItem("pendingUserLocation", location);
+
+      setError(
+        "There was an issue saving your profile, but we'll try to continue. Please wait..."
+      );
+
+      // Wait 2 seconds then redirect anyway - ClerkAuthSync will handle the fallback
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
       }, 2000);
     } finally {
       setIsSubmitting(false);
@@ -126,7 +162,9 @@ export function RoleSelection() {
     >
       <Card className="w-full max-w-md mx-auto shadow-lg">
         <CardHeader className="bg-gradient-to-r from-brand-orange/10 to-brand-midblue/10 rounded-t-lg">
-          <CardTitle className="text-2xl text-brand-darkblue">Complete Your Profile</CardTitle>
+          <CardTitle className="text-2xl text-brand-darkblue">
+            Complete Your Profile
+          </CardTitle>
           <CardDescription>
             Choose your role and provide your school information
           </CardDescription>
@@ -149,15 +187,27 @@ export function RoleSelection() {
                 whileTap={{ scale: 0.98 }}
                 className={cn(
                   "flex items-center space-x-2 border p-4 rounded-md cursor-pointer transition-all duration-200",
-                  role === "student" ? "border-brand-orange bg-brand-orange/5" : "hover:bg-gray-50"
+                  role === "student"
+                    ? "border-brand-orange bg-brand-orange/5"
+                    : "hover:bg-gray-50"
                 )}
               >
                 <RadioGroupItem value="student" id="student" />
-                <Label htmlFor="student" className="flex items-center cursor-pointer w-full">
-                  <GraduationCap className={cn("h-5 w-5 mr-2", role === "student" ? "text-brand-orange" : "")} />
+                <Label
+                  htmlFor="student"
+                  className="flex items-center cursor-pointer w-full"
+                >
+                  <GraduationCap
+                    className={cn(
+                      "h-5 w-5 mr-2",
+                      role === "student" ? "text-brand-orange" : ""
+                    )}
+                  />
                   <div>
                     <div className="font-medium">Student</div>
-                    <div className="text-sm text-gray-500">Access learning materials and quizzes</div>
+                    <div className="text-sm text-gray-500">
+                      Access learning materials and quizzes
+                    </div>
                   </div>
                 </Label>
               </motion.div>
@@ -166,15 +216,27 @@ export function RoleSelection() {
                 whileTap={{ scale: 0.98 }}
                 className={cn(
                   "flex items-center space-x-2 border p-4 rounded-md cursor-pointer transition-all duration-200",
-                  role === "teacher" ? "border-brand-orange bg-brand-orange/5" : "hover:bg-gray-50"
+                  role === "teacher"
+                    ? "border-brand-orange bg-brand-orange/5"
+                    : "hover:bg-gray-50"
                 )}
               >
                 <RadioGroupItem value="teacher" id="teacher" />
-                <Label htmlFor="teacher" className="flex items-center cursor-pointer w-full">
-                  <BookOpen className={cn("h-5 w-5 mr-2", role === "teacher" ? "text-brand-orange" : "")} />
+                <Label
+                  htmlFor="teacher"
+                  className="flex items-center cursor-pointer w-full"
+                >
+                  <BookOpen
+                    className={cn(
+                      "h-5 w-5 mr-2",
+                      role === "teacher" ? "text-brand-orange" : ""
+                    )}
+                  />
                   <div>
                     <div className="font-medium">Teacher</div>
-                    <div className="text-sm text-gray-500">Create content and manage classes</div>
+                    <div className="text-sm text-gray-500">
+                      Create content and manage classes
+                    </div>
                   </div>
                 </Label>
               </motion.div>
@@ -197,8 +259,11 @@ export function RoleSelection() {
                   onChange={(e) => setSchool(e.target.value)}
                   className={cn(
                     "pr-10",
-                    schoolError ? "border-red-500 focus-visible:ring-red-500" : 
-                    school.trim().length >= 2 ? "border-green-500 focus-visible:ring-green-500" : ""
+                    schoolError
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : school.trim().length >= 2
+                      ? "border-green-500 focus-visible:ring-green-500"
+                      : ""
                   )}
                   placeholder="e.g. Lincoln High School"
                 />
@@ -247,8 +312,11 @@ export function RoleSelection() {
                   onChange={(e) => setLocation(e.target.value)}
                   className={cn(
                     "pr-10",
-                    locationError ? "border-red-500 focus-visible:ring-red-500" : 
-                    location.trim().length >= 2 ? "border-green-500 focus-visible:ring-green-500" : ""
+                    locationError
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : location.trim().length >= 2
+                      ? "border-green-500 focus-visible:ring-green-500"
+                      : ""
                   )}
                   placeholder="e.g. Boston, MA"
                 />
@@ -282,7 +350,7 @@ export function RoleSelection() {
               )}
             </div>
           </div>
-          
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -295,12 +363,12 @@ export function RoleSelection() {
           )}
         </CardContent>
         <CardFooter className="pt-2 pb-6">
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             className={cn(
               "w-full transition-all duration-300",
-              formValid 
-                ? "bg-brand-orange hover:bg-brand-orange/90" 
+              formValid
+                ? "bg-brand-orange hover:bg-brand-orange/90"
                 : "bg-gray-400 hover:bg-gray-500 cursor-not-allowed"
             )}
             disabled={isSubmitting || !formValid}
